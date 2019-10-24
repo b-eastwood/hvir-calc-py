@@ -238,9 +238,11 @@ class hvirCalculator:
                     r = self.r_method_fallback(survey)
                 else:
                     r = self.calc_r_hati(survey['hati'])
+            elif hvir_params['r_method'] == 'vcg':
+                r = self.r_method_fallback(survey)
             else:
-                logging.debug('Invalid r method specified: %s', survey['r_method'])
-                r = 'NA'
+                logging.debug('Invalid r method specified: %s Using VCG', survey['r_method'])
+                r = self.r_method_fallback(survey)
         return r
 
     def w_method_logic(self, survey):
@@ -277,7 +279,7 @@ class hvirCalculator:
         a = self.a_method_logic(survey, hvir_params)
         r = self.r_method_logic(survey, hvir_params)
         w = self.w_method_logic(survey)
-        # logger.(a,r,w,survey['road_cat'])
+        # logger.debug(a,r,w,survey['road_cat'])
         # UA As discussed, this is 'NA' or specifically a lack of Leeway Input Data.
         if 'r' == 'NA':
             hvir = 0.67 * a + 0.33 * w
@@ -291,7 +293,7 @@ class hvirCalculator:
         minev = self.calc_minev(survey)
         if survey['road_cat'] is None:
             survey['road_cat'] = "NA".lower()
-        if survey['road_cat'] == "r0":  # In all cases.if road_Cat is R0 then always return Medium even if undefined
+        if survey['road_cat'] == "r0":  # In all cases. If road_Cat is R0 then always return Medium even if undefined
             # values.
             cat = "Medium"
         else:

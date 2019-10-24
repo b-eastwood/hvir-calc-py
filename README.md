@@ -14,7 +14,7 @@ this specifices the types in the csv file, the datetime format, and the default 
 - o: output filepath (ignored if stdout set)
 - l: logfile location, will not write logfile if location not specified
 - a: a method choose from ['iri','limit','avc']
-- r: r method choose from ['iri','hati']
+- r: r method choose from ['iri','hati','vcg]. Will default to vcg if invalid method specified
 - w: w method, currently not implented, automatic w method handling instead
 
 
