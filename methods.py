@@ -302,7 +302,8 @@ class hvirCalculator:
         survey['a'] = a
         survey['w'] = w
         survey['r'] = r
+        survey['hvir'] = hvir
         survey['minev'] = minev
         survey['maxev'] = maxev
         survey['cat'] = cat
-        return survey, ['a', 'w', 'r', 'minev', 'maxev', 'cat']
+        return survey, ['a', 'w', 'r', 'hvir', 'minev', 'maxev', 'cat']
