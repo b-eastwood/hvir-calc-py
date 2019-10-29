@@ -175,7 +175,7 @@ class hvirCalculator:
                 return self.defaults['minev']['default']
 
     def calc_cat(self, hvir: float, minev: float, maxev: float):
-        if hvir is None:
+        if hvir == "NA":
             return "NA"
         if minev >= maxev:
             raise ValueError("Max ev: %s is less than min ev: %s" % (maxev, minev))
