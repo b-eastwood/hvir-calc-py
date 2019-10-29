@@ -69,12 +69,12 @@ class hvirCalculator:
             return normal_clamp(r)
 
     def calc_r_vcg(self, vcg: int, road_cat: str):
-        if vcg is None or road_cat.lower() == 'r1' or road_cat.lower() == 'r2':
+        if vcg is None or road_cat == 'r1' or road_cat == 'r2':
             return self.defaults['default_r_val']
         else:
             if vcg not in [0, 1, 2, 3, 4, 5]:
                 raise ValueError("Invalid vcg: %s" % vcg)
-            if road_cat.lower() == 'r3':
+            if road_cat == 'r3':
                 vcg_map = {
                     "0": 0.0,
                     "1": 0.70,
@@ -84,7 +84,7 @@ class hvirCalculator:
                     "5": 0.0
                 }
                 return vcg_map[str(vcg)]
-            elif road_cat.lower() == 'r4':
+            elif road_cat == 'r4':
                 vcg_map = {
                     "0": 0.0,
                     "1": 0.65,
@@ -94,7 +94,7 @@ class hvirCalculator:
                     "5": 0.0
                 }
                 return vcg_map[str(vcg)]
-            elif road_cat.lower() in ['r5', 'r0']:
+            elif road_cat in ['r5', 'r0']:
                 vcg_map = {
                     "0": 0.0,
                     "1": 0.60,
@@ -157,7 +157,7 @@ class hvirCalculator:
             logging.debug("Missing road_cat in calc_minev, using default ")
             return self.defaults['maxev']['default']
         else:
-            cat = survey['road_cat'].lower()
+            cat = survey['road_cat']
             if cat in self.defaults['maxev'].keys():
                 return self.defaults['maxev'][cat]  # as per HVIR table (4.1)
             else:
@@ -168,7 +168,7 @@ class hvirCalculator:
             logging.debug("Missing road_cat in calc_minev, using default ")
             return self.defaults['minev']['default']
         else:
-            cat = survey['road_cat'].lower()
+            cat = survey['road_cat']
             if cat in self.defaults['minev']:
                 return self.defaults['minev'][cat]  # as per HVIR table (4.1)
             else:
@@ -214,7 +214,7 @@ class hvirCalculator:
         return a
 
     def r_method_fallback(self, survey):
-        if survey['vcg'] is None or survey['road_cat'].lower() == 'r1' or survey['road_cat'].lower() == 'r2':
+        if survey['vcg'] is None or survey['road_cat'] == 'r1' or survey['road_cat'] == 'r2':
             r = 'NA'
         else:
             r = self.calc_r_vcg(survey['vcg'], survey['road_cat'])  # UA Needs check for vcg data present?
@@ -247,8 +247,8 @@ class hvirCalculator:
 
     def w_method_logic(self, survey):
         # New logic to allow for unsealed and unmarked roads cases
-        if survey['seal_flag'].lower() == 'sealed' or survey['seal_flag'] is None:
-            if survey['line_mark'].lower() == 'yes' or survey['line_mark'].lower() is None:
+        if survey['seal_flag'] == 'sealed' or survey['seal_flag'] is None:
+            if survey['line_mark'] == 'yes' or survey['line_mark'] is None:
                 if survey['lane_width'] is not None and survey['seal_shld'] is not None:
                     w = self.calc_w_by_geom(survey['lane_width'],
                                             survey['seal_shld'])  # Assume sealed and marked
@@ -292,7 +292,7 @@ class hvirCalculator:
         maxev = self.calc_maxev(survey)
         minev = self.calc_minev(survey)
         if survey['road_cat'] is None:
-            survey['road_cat'] = "NA".lower()
+            survey['road_cat'] = "NA"
         if survey['road_cat'] == "r0":  # In all cases. If road_Cat is R0 then always return Medium even if undefined
             # values.
             cat = "Medium"
