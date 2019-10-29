@@ -46,7 +46,7 @@ def main():
         with open(params['logfile'], 'w') as logfile:
             now = datetime.datetime.now()
             logfile.writelines(['Completed: ' + now.strftime("%B %d, %Y") + '\n'])
-            logfile.writelines(['Total rows completed: %s\n' % str(len(raw_data) - len(failed_rows))])
+            logfile.writelines(['Total rows in dataset: %s\n' % str(len(raw_data))])
             logfile.writelines(['Total of %s rows were not completed' % len(failed_rows) + '\n'])
             for key in key_fails.keys():
                 logfile.writelines([str(key_fails[key]) + ' ' + str(key) + ' key(s) could not be read' + '\n'])
