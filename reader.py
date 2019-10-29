@@ -12,7 +12,7 @@ def create_typer(datetime_format):
                      'float': lambda val: (float(val) if val != '' else None),
                      'bool': lambda val: (bool(int(val)) if val != '' else None),
                      'datetime': lambda val: (datetime.strptime(val, datetime_format) if val != '' else None),
-                     'str': lambda val: (str(val) if val != '' else None)
+                     'str': lambda val: (str(val).lower() if val != '' else None)
                      }
     return type_selector
 
