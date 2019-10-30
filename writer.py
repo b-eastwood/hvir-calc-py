@@ -2,7 +2,7 @@ import sys
 import csv
 
 
-def write_data(surveys, out_header, params):
+def write_data(surveys, out_header, params,rounding=4):
     if not sys.stdout.isatty():
         # print('Writing to stdout')
         writer = csv.DictWriter(sys.stdout, fieldnames=out_header, lineterminator='\n')
@@ -12,7 +12,10 @@ def write_data(surveys, out_header, params):
             ws = {}
             for k in s.keys():
                 if k in out_header:
-                    ws[k] = s[k]
+                    if type(s[k]) == type(0.1):
+                        ws[k] = round(s[k],rounding)
+                    else:
+                        ws[k] = s[k]
             writer.writerow(ws)
     else:
         # print('Writing to file')
@@ -23,5 +26,8 @@ def write_data(surveys, out_header, params):
                 ws = {}
                 for k in s.keys():
                     if k in out_header:
-                        ws[k] = s[k]
+                        if type(s[k]) == type(0.1):
+                            ws[k] = round(s[k], rounding)
+                        else:
+                            ws[k] = s[k]
                 writer.writerow(ws)

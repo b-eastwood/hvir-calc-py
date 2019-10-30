@@ -2,8 +2,8 @@ import logging
 
 
 def normal_clamp(value, min_v=0, max_v=1):
-    value = min(min_v, value)  # Clamp to 1 if > 1
-    value = max(max_v, value)  # Clamp to 0 if < 0
+    value = max(min_v, value)  # Clamp to 1 if > 1
+    value = min(max_v, value)  # Clamp to 0 if < 0
     return value
 
 
@@ -187,16 +187,18 @@ class hvirCalculator:
             return "Low"
 
     def a_method_heirachy(self, survey, skip_limits=False):
-        if survey['mass_limit'] is None or survey['length_limit'] is None or skip_limits:
+        if survey['mass_lim'] is None or survey['len_lim'] is None or skip_limits:
             if survey['avc'] is not None:
                 # logging.warning("Missing mass or length limit in a-advanced, using basic version.")
                 a = self.calc_a_avc(survey['avc'])
             else:
+
                 logging.warning("Missing mass or length limit in a-advanced, using basic version.")
                 a = self.defaults['default_avc']
         else:
-            a = self.calc_a_limits(mass_limit=survey['mass_limit'], length_limit=survey['length_limit'],
+            a = self.calc_a_limits(mass_limit=survey['mass_lim'], length_limit=survey['len_lim'],
                                    avc=survey['avc'])
+
         return a
 
     def a_method_logic(self, survey, hvir_params):
@@ -299,11 +301,11 @@ class hvirCalculator:
         else:
             cat = self.calc_cat(hvir, minev, maxev)
 
-        survey['a'] = a
-        survey['w'] = w
-        survey['r'] = r
-        survey['hvir'] = hvir
+        survey['a']     = a
+        survey['w']     = w
+        survey['r']     = r
+        survey['hvir']  = hvir
         survey['minev'] = minev
         survey['maxev'] = maxev
-        survey['cat'] = cat
+        survey['cat']   = cat
         return survey, ['a', 'w', 'r', 'hvir', 'minev', 'maxev', 'cat']
