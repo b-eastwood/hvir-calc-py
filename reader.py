@@ -8,11 +8,11 @@ import logging
 
 def create_typer(datetime_format):
     # To add date and range check into the type selector
-    type_selector = {'int': lambda val: (int(val) if val != '' else None),
-                     'float': lambda val: (float(val) if val != '' else None),
-                     'bool': lambda val: (bool(int(val)) if val != '' else None),
+    type_selector = {'int':      lambda val: (int(val) if val != '' else None),
+                     'float':    lambda val: (float(val) if val != '' else None),
+                     'bool':     lambda val: (bool(int(val)) if val != '' else None),
                      'datetime': lambda val: (datetime.strptime(val, datetime_format) if val != '' else None),
-                     'str': lambda val: (str(val).lower() if val != '' else None)
+                     'str':      lambda val: (str(val).lower() if val != '' else None)
                      }
     return type_selector
 

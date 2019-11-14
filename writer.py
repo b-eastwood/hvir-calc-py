@@ -1,8 +1,10 @@
 import sys
 import csv
+import logging
+def append_id(filename,id):
+    return "{0}_{2}.{1}".format(*filename.rsplit('.', 1) + [id])
 
-
-def write_data(surveys, out_header, params,rounding=4):
+def write_data(surveys, out_header, params,rounding=4,sub_file=None):
     if not sys.stdout.isatty():
         # print('Writing to stdout')
         writer = csv.DictWriter(sys.stdout, fieldnames=out_header, lineterminator='\n')
@@ -18,8 +20,13 @@ def write_data(surveys, out_header, params,rounding=4):
                         ws[k] = s[k]
             writer.writerow(ws)
     else:
-        # print('Writing to file')
-        with open(params['outfile'], mode='w', newline='') as csv_file:
+        if sub_file is not None:
+            filename = append_id(params['outfile'],sub_file)
+        else:
+            filename = params['outfile']
+        logging.debug('Writing to location: %s' % filename)
+
+        with open(filename, mode='w', newline='') as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=out_header)
             writer.writeheader()
             for s in surveys:
