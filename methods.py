@@ -27,7 +27,7 @@ class HvirCalculator:
 
             # Calculate A
             a = (2.0 * m) / (1.0 + (m / l))
-            return a
+            return a, 'L'
 
     def calc_a_avc(self, avc: int):
         avc_dict = {
@@ -43,15 +43,15 @@ class HvirCalculator:
             12: 1.00
         }
         if avc in avc_dict:
-            return avc_dict[avc]
+            return avc_dict[avc], 'A'
         else:
             logging.warning('No avc provided, returning default avc')
-            return self.defaults['default_avc']
+            return self.defaults['default_avc'], 'D'
 
     def calc_r_iri(self, iri: float):
         # calculate the r value using the basic method based on IRI.
         r =  0.0075*iri**3-0.107*iri**2+0.277*iri+0.8014
-        return normal_clamp(r)
+        return normal_clamp(r), 'I'
 
     def calc_r_hati(self, hati: float):
         # Calculate the r value using the basic method based on HATI.
@@ -60,11 +60,11 @@ class HvirCalculator:
             return 'NA'
         else:
             r = (-0.1848 * hati) + 1.0
-            return normal_clamp(r)
+            return normal_clamp(r),'H'
 
     def calc_r_vcg(self, vcg: int, road_cat: str):
         if vcg is None or road_cat == 'r1' or road_cat == 'r2':
-            return self.defaults['default_r_val']
+            return self.defaults['default_r_val'],'D'
         else:
             if vcg not in [0, 1, 2, 3, 4, 5]:
                 raise ValueError("Invalid vcg: %s" % vcg)
@@ -77,7 +77,7 @@ class HvirCalculator:
                     "4": 0.27,
                     "5": 0.0
                 }
-                return vcg_map[str(vcg)]
+                return vcg_map[str(vcg)], 'V'
             elif road_cat == 'r4':
                 vcg_map = {
                     "0": 0.0,
@@ -87,7 +87,7 @@ class HvirCalculator:
                     "4": 0.23,
                     "5": 0.0
                 }
-                return vcg_map[str(vcg)]
+                return vcg_map[str(vcg)], 'V'
             elif road_cat in ['r5', 'r0']:
                 vcg_map = {
                     "0": 0.0,
@@ -97,9 +97,9 @@ class HvirCalculator:
                     "4": 0.23,
                     "5": 0.0
                 }
-                return vcg_map[str(vcg)]
+                return vcg_map[str(vcg)], 'V'
             else:
-                return self.defaults['default_r_val']
+                return self.defaults['default_r_val'], 'D'
 
     def calc_w_geom_unmarked(self, seal_width: float):
         # 1) Assume half of the seal width (TSW) is for travel in each direction. 2)	Take HSW and allocate up to
@@ -190,16 +190,16 @@ class HvirCalculator:
         if survey['mass_lim'] is None or survey['len_lim'] is None or skip_limits:
             if survey['avc'] is not None:
                 logging.debug("Missing mass or length limit in a-advanced, using basic version.")
-                a = self.calc_a_avc(survey['avc'])
+                a, methods  = self.calc_a_avc(survey['avc'])
             else:
                 logging.warning("Missing mass or length limit in a-advanced, using basic version.")
-                a = self.defaults['default_avc']
+                a, methods = self.defaults['default_avc'], 'D'
         else:
             #logging.debug('using limits')
-            a = self.calc_a_limits(mass_limit=survey['mass_lim'], length_limit=survey['len_lim'],
+            a, methods = self.calc_a_limits(mass_limit=survey['mass_lim'], length_limit=survey['len_lim'],
                                    avc=survey['avc'])
 
-        return a
+        return a, methods
 
     def a_method_logic(self, survey, hvir_params):
         # a calc
@@ -207,22 +207,22 @@ class HvirCalculator:
         # 2. check if required input data is present,
         # 3. if not fall back from limits --> avc --> default a value.
         if hvir_params['a_method'] == "limits":
-            a = self.a_method_heirachy(survey)
+            a, methods = self.a_method_heirachy(survey)
         elif hvir_params['a_method'] == "avc":
             logging.debug('using avc')
-            a = self.a_method_heirachy(survey, skip_limits=True)
+            a, methods = self.a_method_heirachy(survey, skip_limits=True)
         else:
             logging.debug('Invalid a method specified: %s' % hvir_params['a_method'])
             a = 'NA'  # invalid a_method provided
-        return a
+        return a, methods
 
     def r_method_fallback(self, survey):
         if survey['iri'] is None:
             if survey['vcg'] is None or survey['road_cat'] == 'r1' or survey['road_cat'] == 'r2':
-                r = 'NA'
+                r = 'NA', 'N'
             else:
-                r = self.calc_r_vcg(survey['vcg'], survey['road_cat'])
-            return r
+                r, methods = self.calc_r_vcg(survey['vcg'], survey['road_cat'])
+            return r, methods
         else:
             return self.calc_r_iri(survey['iri'])
 
@@ -231,60 +231,60 @@ class HvirCalculator:
         # 2. Check if required input data is present,
         # 3. If not fall back from iri OR hati --> vcg --> default r result (NA).
         if survey['seal_flag'] == 'Unsealed':
-            r = 'NA'
+            r, methods = 'NA', 'N'
         else:
             if hvir_params['r_method'] == "iri":  # iri
                 if survey['iri'] is None:
-                    r = self.r_method_fallback(survey)
+                    r, methods = self.r_method_fallback(survey)
                 else:
-                    r = self.calc_r_iri(survey['iri'])
+                    r, methods = self.calc_r_iri(survey['iri'])
 
             elif hvir_params['r_method'] == 'hati':  # hati
                 if survey['hati'] is None:
-                    r = self.r_method_fallback(survey)
+                    r, methods = self.r_method_fallback(survey)
                 else:
-                    r = self.calc_r_hati(survey['hati'])
+                    r, methods = self.calc_r_hati(survey['hati'])
             elif hvir_params['r_method'] == 'vcg':
-                r = self.r_method_fallback(survey)
+                r, methods = self.r_method_fallback(survey)
             else:
                 logging.debug('Invalid r method specified: %s Using VCG', survey['r_method'])
-                r = self.r_method_fallback(survey)
-        return r
+                r, methods = self.r_method_fallback(survey)
+        return r, methods
 
     def w_method_logic(self, survey):
         # Logic to allow for unsealed and unmarked roads cases
         if survey['seal_flag'] == 'sealed' or survey['seal_flag'] is None:
             if survey['line_mark'] == 'yes' or survey['line_mark'] is None:
                 if survey['lane_width'] is not None and survey['seal_shld'] is not None:
-                    w = self.calc_w_by_geom(survey['lane_width'],
-                                            survey['seal_shld'])  # Assume sealed and marked
+                    w, methods= self.calc_w_by_geom(survey['lane_width'],
+                                            survey['seal_shld']),'M' # Assume sealed and marked
                 else:
                     if survey['seal_width'] is None:
                         logging.debug(
                             "Couldn't calculate w, line marking was set to Yes, but lane_width or seal_shld or "
                             "seal_width not provided")
-                        w = 'NA'
+                        w, methods = 'NA', 'N'
                     else:
-                        w = self.calc_w_geom_unmarked(survey['seal_width'])  # sealed but not marked
+                        w = self.calc_w_geom_unmarked(survey['seal_width']),'S'  # sealed but not marked
             else:
                 if survey['seal_width'] is None:
                     logging.debug(
                         "Couldn't calculate w, line marking was set to No, but seal_width not provided")
-                    w = 'NA'
+                    w, methods = 'NA', 'N'
                 else:
-                    w = self.calc_w_geom_unmarked(survey['seal_width'])  # Sealed but not marked
+                    w, methods = self.calc_w_geom_unmarked(survey['seal_width']),'S'  # Sealed but not marked
         elif survey['form_width'] is not None:
-            w = self.calc_w_geom_unsealed(survey['form_width'])  # Calculate for unsealed roads
+            w, methods = self.calc_w_geom_unsealed(survey['form_width']), 'S'  # Calculate for unsealed roads
         else:
             logging.debug("Couldn't calculate w, road is unsealed, but no from width provided")
-            w = 'NA'
-        return w
+            w, methods = 'NA', 'N'
+        return w, methods
 
     def method_logic(self, survey, hvir_params):
         self.defaults = hvir_params['data_params']['default_values']
-        a = self.a_method_logic(survey, hvir_params)
-        r = self.r_method_logic(survey, hvir_params)
-        w = self.w_method_logic(survey)
+        a,a_method = self.a_method_logic(survey, hvir_params)
+        r,r_method = self.r_method_logic(survey, hvir_params)
+        w,w_method = self.w_method_logic(survey)
         hvir = self.calc_hvir(a,r,w,survey['seal_flag'])
         maxev = self.calc_maxev(survey)
         minev = self.calc_minev(survey)
@@ -302,4 +302,5 @@ class HvirCalculator:
         survey['minev'] = minev
         survey['maxev'] = maxev
         survey['cat'] = cat
-        return survey, ['a', 'w', 'r', 'hvir', 'minev', 'maxev', 'cat']
+        survey['calc-methods'] = "%s-%s-%s" % (a_method,r_method,w_method)
+        return survey, ['a', 'w', 'r', 'hvir', 'minev', 'maxev', 'cat','calc-methods']
