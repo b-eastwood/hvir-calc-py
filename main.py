@@ -41,10 +41,10 @@ def write_log(params,key_fails,raw_data,failed_rows,meta):
         now = datetime.datetime.now()
         logfile.writelines(['Completed: ' + now.strftime("%B %d, %Y") + '\n'])
         logfile.writelines(['Total rows in dataset: %s\n' % str(len(raw_data))])
-        logfile.writelines(['Completeness: %s percent, %s BLANK attributes(s)\n' % ( round(len(key_fails) / (len(raw_data) * len(raw_data[0]))),len(key_fails) )])
+        logfile.writelines(['Completeness: %s percent, %s BLANK attributes(s)\n' % ( round(len(key_fails) / (len(raw_data) * len(raw_data[0])),2),len(key_fails) )])
         logfile.writelines(['Accuracy: %s percent, %s INVALID attributes(s) %s attributes(s) OUT OF RANGE\n' % (round(meta['accuracy'],2),meta['num_invalid'], meta['num_ranged'])])
         logfile.writelines(['Total of %s rows were not completed' % len(failed_rows) + '\n'])
-        logfile.writelines(['Timeliness: Condition data from %s to %s\n' % (meta['min_date'].strftime('%d/%m/%Y'), meta['max_date'].strftime('%d/%m/%Y'))])
+        logfile.writelines(['Timeliness: Condition data from %s to %s\n' % (meta['min_date'], meta['max_date'])])
         # for key in key_fails.keys():
         #    logfile.writelines([str(key_fails[key]) + ' ' + str(key) + ' key(s) could not be read' + '\n'])
         # logfile.writelines(['%s surveys read, %s surveys failed' % (len(raw_data), len(failed_rows)) + '\n'])
