@@ -60,11 +60,11 @@ def process_rows(raw_data, header, hvir_params, converters):
             failed_rows.append(row_num)
 
     if meta['min_date'] == datetime.strptime('19010101', '%Y%m%d'):
-        meta['min_date'] = 'NaN'
+        meta['min_date'] = 'Unknown'
     else:
         meta['min_date'].strftime('%d/%m/%Y')
     if meta['max_date'] == datetime.strptime('30000101', '%Y%m%d'):
-        meta['min_date'] = 'NaN'
+        meta['min_date'] = 'Unknown'
     else:
         meta['min_date'].strftime('%d/%m/%Y')
     return key_fails, failed_rows, surveys, quality_assessement, out_keys,meta
