@@ -11,7 +11,7 @@ def create_typer(datetime_format):
     type_selector = {'int':      lambda val: (int(val) if val != '' else None),
                      'float':    lambda val: (float(val) if val != '' else None),
                      'bool':     lambda val: (bool(int(val)) if val != '' else None),
-                     'datetime': lambda val: (datetime.strptime(val, datetime_format) if val != '' else None),
+                     'datetime': lambda val: (val if type(val) == datetime else datetime.strptime(val, datetime_format) if val != '' else None),
                      'str':      lambda val: (str(val).lower() if val != '' else None)
                      }
     return type_selector
@@ -29,6 +29,7 @@ def process_rows(raw_data, header, hvir_params, converters):
     meta['num_blank']   = 0
     meta['num_invalid'] = 0
     meta['total_acc_check'] = 0
+    meta['accuracy'] = 0
     meta['min_date']    = datetime.strptime('19010101','%Y%m%d')
     meta['max_date']    = datetime.strptime('30000101','%Y%m%d')
     type_selector = create_typer(hvir_params['data_params']['datetime_format'])
@@ -53,10 +54,8 @@ def process_rows(raw_data, header, hvir_params, converters):
             meta['max_date'] = max(max_date, meta['max_date'])
             meta['accuracy'] = (num_invalid + num_blank + num_ranged) / (total_acc_check)
             quality_assessement.append(quality)
-            survey, out_keys = calculator.method_logic(survey, hvir_params)
-            surveys.append(survey)
 
-        except:
+        except KeyError:
             logging.warning("couldn't calculate HVIR for this row: %s" % str(row_num))
             failed_rows.append(row_num)
 
@@ -87,7 +86,7 @@ def accurate_data(data_params,type_selector,survey,k):
                     #logging.debug('%s in set for key %s' % (typed, k))
                     return True, typed, None
                 else:
-                    logging.warning('%s Out of set for key %s' % (typed, k))
+                    logging.debug('%s Out of set for key %s' % (typed, k))
                     return False, None, 'ranged'
             elif rng_type == 'range':
                 lower, upper = True, True
@@ -101,7 +100,7 @@ def accurate_data(data_params,type_selector,survey,k):
                     #logging.debug('%s in range for key %s' % (typed, k))
                     return True,typed, None
                 else:
-                    logging.warning('%s Out of range for key %s' % (typed, k))
+                    logging.debug('%s Out of range for key %s' % (typed, k))
                     return False, None, 'ranged'
             elif rng_type == "None":
                 # logging.debug('%s in range for key %s' % (typed, k))
@@ -114,6 +113,9 @@ def accurate_data(data_params,type_selector,survey,k):
             return False, None, 'missing'
     except KeyError:
         logging.debug('Bad data format %s' % k)
+        return False, None, 'bad data'
+    except IOError:
+        logging.debug("Bad type")
         return False, None, 'bad data'
 
 

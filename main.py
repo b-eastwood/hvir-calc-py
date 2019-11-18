@@ -61,6 +61,8 @@ def main():
         if params['debug'] == '1':
             print('setting debug level')
             logging.getLogger().setLevel(logging.DEBUG)
+        elif params['debug'] == '2':
+            logging.getLogger().setLevel(logging.WARNING)
         else:
             logging.getLogger().setLevel(logging.CRITICAL)
     else:
