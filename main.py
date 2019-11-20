@@ -59,9 +59,10 @@ def main():
 
     if 'debug' in params.keys():
         if params['debug'] == '1':
-            print('setting debug level')
+            print('Setting debug level: Debug')
             logging.getLogger().setLevel(logging.DEBUG)
         elif params['debug'] == '2':
+            print('Setting debug level: Warnings')
             logging.getLogger().setLevel(logging.WARNING)
         else:
             logging.getLogger().setLevel(logging.CRITICAL)

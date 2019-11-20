@@ -109,7 +109,7 @@ def accurate_data(data_params,type_selector,survey,k):
                     #logging.debug('%s in set for key %s' % (typed, k))
                     return True, typed, None
                 else:
-                    logging.debug('%s Out of set for key %s' % (typed, k,rng))
+                    logging.debug('<%s> Out of set %s for key %s' % (typed, rng, k))
                     return False, None, 'ranged'
             elif rng_type == 'range':
                 lower, upper = True, True
@@ -123,7 +123,7 @@ def accurate_data(data_params,type_selector,survey,k):
                     #logging.debug('%s in range for key %s' % (typed, k))
                     return True,typed, None
                 else:
-                    logging.debug('%s Out of range for key %s' % (typed, k))
+                    logging.debug('<%s> Out of range for key %s' % (typed, k))
                     return False, None, 'ranged'
             elif rng_type == "None":
                 # logging.debug('%s in range for key %s' % (typed, k))
@@ -138,7 +138,7 @@ def accurate_data(data_params,type_selector,survey,k):
         logging.debug('Bad data format %s' % k)
         return False, None, 'bad data'
     except TypeError:
-        logging.debug("Bad type")
+        logging.debug("Bad type <%s> to %s" % (survey[k],type))
         return False, None, 'bad data'
 
 
