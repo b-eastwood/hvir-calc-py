@@ -57,6 +57,10 @@ def read_file(csv_reader):
                 raw_data.append(row.strip('\n'))
             else:
                 header = row
+                try:
+                    header = [h.lower() for h in header]
+                except TypeError:
+                    logging.warning("Couldn't parse header correctly")
             line_count += 1
         else:
             raw_data.append(row)
@@ -80,8 +84,8 @@ def validate_data_format(settings, header):
     converters = {}
     type_selector = create_typer(settings['datetime_format'])
     for key in settings['datatypes']:
-        converters[key] = type_selector[settings['datatypes'][key]['type']]
+        converters[key.lower()] = type_selector[settings['datatypes'][key.lower()]['type']]
     for key in header:
         if key not in converters:
-            raise KeyError("One of the header names in the csv does not match the converter list %s" % key)
+            raise KeyError("One of the header names in the csv does not match the converter list %s  Converter list %s" % (key, converters.keys()))
     return type_selector, converters

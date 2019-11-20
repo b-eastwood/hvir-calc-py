@@ -230,7 +230,7 @@ class HvirCalculator:
         # 1. Check selected calculation method (iri, hati, vcg),
         # 2. Check if required input data is present,
         # 3. If not fall back from iri OR hati --> vcg --> default r result (NA).
-        if survey['seal_flag'] == 'Unsealed':
+        if survey['seal_flag'] == 'unsealed':
             r, methods = 'NA', 'N'
         else:
             if hvir_params['r_method'] == "iri":  # iri
@@ -276,6 +276,7 @@ class HvirCalculator:
         elif survey['form_width'] is not None:
             w, methods = self.calc_w_geom_unsealed(survey['form_width']), 'S'  # Calculate for unsealed roads
         else:
+            print('survey',survey)
             logging.debug("Couldn't calculate w, road is unsealed, but no from width provided")
             w, methods = 'NA', 'N'
         return w, methods

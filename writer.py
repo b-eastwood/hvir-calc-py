@@ -4,7 +4,7 @@ import logging
 def append_id(filename,id):
     return "{0}_{2}.{1}".format(*filename.rsplit('.', 1) + [id])
 
-def write_data(surveys, out_header, params,rounding=4,sub_file=None):
+def write_data(surveys, out_header, params,rounding=9,sub_file=None):
     if not sys.stdout.isatty():
         # print('Writing to stdout')
         writer = csv.DictWriter(sys.stdout, fieldnames=out_header, lineterminator='\n')

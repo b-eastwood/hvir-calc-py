@@ -41,8 +41,8 @@ def write_log(params,key_fails,raw_data,failed_rows,meta):
         now = datetime.datetime.now()
         logfile.writelines(['Completed: ' + now.strftime("%B %d, %Y") + '\n'])
         logfile.writelines(['Total rows in dataset: %s\n' % str(len(raw_data))])
-        logfile.writelines(['Completeness: %s percent, %s BLANK attributes(s)\n' % ( round(len(key_fails) / (len(raw_data) * len(raw_data[0])),2),len(key_fails) )])
-        logfile.writelines(['Accuracy: %s percent, %s INVALID attributes(s) %s attributes(s) OUT OF RANGE\n' % (round(meta['accuracy'],2),meta['num_invalid'], meta['num_ranged'])])
+        logfile.writelines(['Completeness: %s percent, %s BLANK attributes(s)\n' % ( round(100*meta['complete']/(meta['complete']+meta['incomplete']),2),meta['incomplete'] )])
+        logfile.writelines(['Accuracy: %s percent, %s INVALID attributes(s) %s attributes(s) OUT OF RANGE\n' % (round(100*meta['num_valid']/(meta['num_valid']+ meta['num_invalid']+meta['num_ranged']),2),meta['num_invalid'], meta['num_ranged'])])
         logfile.writelines(['Total of %s rows were not completed' % len(failed_rows) + '\n'])
         logfile.writelines(['Timeliness: Condition data from %s to %s\n' % (meta['min_date'], meta['max_date'])])
         # for key in key_fails.keys():
@@ -76,7 +76,7 @@ def main():
        write_log(params,key_fails,raw_data,failed_rows,meta)
 
     out_header = header + out_keys
-    writer.write_data(surveys, out_header, params)
+    writer.write_data(surveys, out_header, params,rounding=9)
     writer.write_data(quality_assessment, quality_assessment[0].keys(), params,sub_file='quality')
     print('Completed, outfile is here: %s' % params['outfile'])
 

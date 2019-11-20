@@ -30,8 +30,11 @@ def process_rows(raw_data, header, hvir_params, converters):
     meta['num_invalid'] = 0
     meta['total_acc_check'] = 0
     meta['accuracy'] = 0
-    meta['min_date']    = datetime.strptime('19010101','%Y%m%d')
-    meta['max_date']    = datetime.strptime('30000101','%Y%m%d')
+    meta['complete'] = 0
+    meta['incomplete'] = 0
+    meta['num_valid'] = 0
+    meta['min_date']    =  datetime.strptime('30000101','%Y%m%d')
+    meta['max_date']    =  datetime.strptime('19010101','%Y%m%d')
     type_selector = create_typer(hvir_params['data_params']['datetime_format'])
 
     for row_num, row in enumerate(raw_data):
@@ -42,13 +45,25 @@ def process_rows(raw_data, header, hvir_params, converters):
             print("Couldn't read in this row: %s" % row_num)
             failed_rows.append(row_num)
         survey, out_keys = calculator.method_logic(survey, hvir_params)
+        if survey['hvir'] == 'NA':
+            failed_rows.append(row_num)
+        complete = 0
+        incomplete = 0
+        for k in survey:
+            if survey[k] == None:
+                incomplete += 1
+            else:
+                complete +=1
+        meta['incomplete'] += incomplete
+        meta['complete']   += complete
         surveys.append(survey)
         try:
-            survey, quality, num_invalid, num_blank, num_ranged, num_invalid, max_date, min_date, total_acc_check = check_quality(
+            survey, quality, num_invalid, num_blank, num_ranged, num_invalid, max_date, min_date, total_acc_check,num_valid = check_quality(
                 survey, hvir_params, type_selector)
-            meta['num_ranged'] += num_ranged
-            meta['num_blank'] += num_blank
-            meta['num_invalid'] += num_invalid
+            meta['num_ranged']      += num_ranged
+            meta['num_blank']       += num_blank
+            meta['num_invalid']     += num_invalid
+            meta['num_valid']       += num_valid
             meta['total_acc_check'] += total_acc_check
             meta['min_date'] = min(min_date, meta['min_date'])
             meta['max_date'] = max(max_date, meta['max_date'])
@@ -59,14 +74,15 @@ def process_rows(raw_data, header, hvir_params, converters):
             logging.warning("couldn't calculate HVIR for this row: %s" % str(row_num))
             failed_rows.append(row_num)
 
-    if meta['min_date'] == datetime.strptime('19010101', '%Y%m%d'):
+    if meta['min_date'] == datetime.strptime('30000101', '%Y%m%d'):
         meta['min_date'] = 'Unknown'
     else:
-        meta['min_date'].strftime('%d/%m/%Y')
-    if meta['max_date'] == datetime.strptime('30000101', '%Y%m%d'):
-        meta['min_date'] = 'Unknown'
+        meta['min_date'] = meta['min_date'].strftime('%d/%m/%Y')
+
+    if meta['max_date'] == datetime.strptime('19010101', '%Y%m%d'):
+        meta['max_date'] = 'Unknown'
     else:
-        meta['min_date'].strftime('%d/%m/%Y')
+        meta['max_date'] = meta['max_date'].strftime('%d/%m/%Y')
     return key_fails, failed_rows, surveys, quality_assessement, out_keys,meta
 
 def get_num_in(survey,keys):
@@ -93,7 +109,7 @@ def accurate_data(data_params,type_selector,survey,k):
                     #logging.debug('%s in set for key %s' % (typed, k))
                     return True, typed, None
                 else:
-                    logging.debug('%s Out of set for key %s' % (typed, k))
+                    logging.debug('%s Out of set for key %s' % (typed, k,rng))
                     return False, None, 'ranged'
             elif rng_type == 'range':
                 lower, upper = True, True
@@ -121,7 +137,7 @@ def accurate_data(data_params,type_selector,survey,k):
     except KeyError:
         logging.debug('Bad data format %s' % k)
         return False, None, 'bad data'
-    except IOError:
+    except TypeError:
         logging.debug("Bad type")
         return False, None, 'bad data'
 
@@ -136,6 +152,7 @@ def check_quality(survey,hvir_params,type_selector):
     num_blank   = 0
     num_ranged  = 0
     num_invalid = 0
+    incomplete, complete = 0, 0
     data_params       = hvir_params['data_params']["datatypes"]
     total_acc_check = 0
     with open(hvir_params['quality_config_file']) as json_file:
@@ -177,6 +194,7 @@ def check_quality(survey,hvir_params,type_selector):
             max_d = 'Missing'
             for k in intersection(timeliness[cat],survey.keys()):
                 if survey[k] is not None:
+                    complete += 1
                     acc_check, value,error = accurate_data(data_params, type_selector, survey, k)
                     if acc_check == False:
                         pass
@@ -192,6 +210,8 @@ def check_quality(survey,hvir_params,type_selector):
 
                         max_dates = max(max_d, max_dates)
                         min_dates = min(min_dates, min_d)
+                else:
+                    incomplete += 1
             timeliness[cat] = min_d
 
 
@@ -200,6 +220,7 @@ def check_quality(survey,hvir_params,type_selector):
             for k in intersection(data_overrides[cat].keys(),survey.keys()):
                 if data_overrides[cat][k] == survey[k]:
                     comp = data_overrides[cat][k][1]
+
         completeness[cat] = comp
         accuracy[cat]     = acc
 
@@ -211,7 +232,7 @@ def check_quality(survey,hvir_params,type_selector):
         if k in timeliness.keys():
             quality[k+'_tim'] = timeliness[k]
     quality['unique_id'] = survey['unique_id']
-    return survey, quality,num_invalid,num_blank,num_ranged,num_invalid,max_dates,min_dates,total_acc_check
+    return survey, quality,num_invalid,num_blank,num_ranged,num_invalid,max_dates,min_dates,total_acc_check,num_acc
 
 
 def cast_row(row, header, converters, key_fails):
