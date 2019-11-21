@@ -77,6 +77,7 @@ def main():
        write_log(params,key_fails,raw_data,failed_rows,meta)
 
     out_header = header + out_keys
+
     writer.write_data(surveys, out_header, params,rounding=9)
     if len(quality_assessment) > 0:
         writer.write_data(quality_assessment, quality_assessment[0].keys(), params,sub_file='group_qual')

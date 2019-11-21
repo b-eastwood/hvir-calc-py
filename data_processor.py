@@ -43,7 +43,7 @@ def process_rows(raw_data, header, hvir_params, converters):
         try:
             survey, key_fails = cast_row(row, header, converters, key_fails)
         except:
-            print("Couldn't read in this row: %s" % row_num)
+            logging.debug("Couldn't read in this row: %s" % row_num)
             failed_rows.append(row_num)
         survey, out_keys = calculator.method_logic(survey, hvir_params)
         if survey['hvir'] == 'NA':
@@ -259,6 +259,7 @@ def cast_row(row, header, converters, key_fails):
             survey[header[index]] = tmp_row[-1]
             # print('\t',header[index]+' '*(15-len(header[index])),'\t',index,'\t',cell+' '*(25-len(cell)),'\t',
         except:
+            logging.debug('Failed to cast %s to %s' % (cell,header[index]))
             # print('Failed to pass row %s, field %s, with value %s' % (row_num,header[index],cell))
             tmp_row.append(None)
             survey[header[index]] = None
