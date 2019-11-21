@@ -222,7 +222,10 @@ def check_quality(survey,hvir_params,type_selector):
                         min_dates = min(min_dates, min_d)
                 else:
                     incomplete += 1
-            timeliness[cat] = min_d
+            if cat != 'fin_dat':
+                timeliness[cat] = min_d
+            else:
+                timeliness[cat] = str(min_d.year) + '-' + str(min_d.year+1)[2:]
 
 
 
