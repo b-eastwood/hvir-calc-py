@@ -265,7 +265,7 @@ class HvirCalculator:
                             "seal_width not provided")
                         w, methods = 'NA', 'N'
                     else:
-                        w = self.calc_w_geom_unmarked(survey['seal_width']),'S'  # sealed but not marked
+                        w, methods = self.calc_w_geom_unmarked(survey['seal_width']),'S'  # sealed but not marked
             else:
                 if survey['seal_width'] is None:
                     logging.debug(

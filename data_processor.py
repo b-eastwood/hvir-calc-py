@@ -224,6 +224,8 @@ def check_quality(survey,hvir_params,type_selector):
                     incomplete += 1
             if cat != 'fin_dat':
                 timeliness[cat] = min_d
+            elif min_d == 'Missing':
+                timeliness[cat] = 'Missing'
             else:
                 timeliness[cat] = str(min_d.year) + '-' + str(min_d.year+1)[2:]
 
