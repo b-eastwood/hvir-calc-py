@@ -191,7 +191,7 @@ def check_quality(survey,hvir_params,type_selector):
                 else:
                     attribute_quality[k] = 0
             else:
-
+                attribute_quality[k] = 0
                 #num_invalid += 1
                 num_blank += 1
 
