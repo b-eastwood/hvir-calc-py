@@ -1,6 +1,7 @@
 import methods
 import logging
 from datetime import datetime
+from datetime import date as date_class
 import json
 
 def intersection(lst1, lst2):
@@ -254,8 +255,13 @@ def cast_row(row, header, converters, key_fails):
               'seal_width': None}
     tmp_row = []
     for index, cell in enumerate(row):
+
         try:
-            tmp_row.append(converters[header[index]](cell))
+            if header[index] == 'fin_year':
+                cell = cell[0:4]
+                tmp_row.append(datetime.strptime(str(cell),'%Y'))
+            else:
+                tmp_row.append(converters[header[index]](cell))
             survey[header[index]] = tmp_row[-1]
             # print('\t',header[index]+' '*(15-len(header[index])),'\t',index,'\t',cell+' '*(25-len(cell)),'\t',
         except:

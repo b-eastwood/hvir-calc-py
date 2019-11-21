@@ -7,7 +7,6 @@ def append_id(filename,id):
     return "{0}_{2}.{1}".format(*filename.rsplit('.', 1) + [id])
 
 def financial_year_formatter(date):
-
     if date.date() > date_obj(date.year, 7, 1):
         return str(date.year) +'-'+ str((date.year+1))[2:]
     elif date.date() < date_obj(date.year, 7, 1):
