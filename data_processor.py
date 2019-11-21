@@ -192,7 +192,7 @@ def check_quality(survey,hvir_params,type_selector):
                     attribute_quality[k] = 0
             else:
                 attribute_quality[k] = 0
-                #num_invalid += 1
+                # num_invalid += 1
                 num_blank += 1
 
         acc  = num_acc/tot_k
