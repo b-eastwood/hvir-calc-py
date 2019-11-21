@@ -35,6 +35,7 @@ def process_rows(raw_data, header, hvir_params, converters):
     meta['num_valid'] = 0
     meta['min_date']    =  datetime.strptime('30000101','%Y%m%d')
     meta['max_date']    =  datetime.strptime('19010101','%Y%m%d')
+    meta['attribute_quality'] = []
     type_selector = create_typer(hvir_params['data_params']['datetime_format'])
 
     for row_num, row in enumerate(raw_data):
@@ -58,7 +59,7 @@ def process_rows(raw_data, header, hvir_params, converters):
         meta['complete']   += complete
         surveys.append(survey)
         try:
-            survey, quality, num_invalid, num_blank, num_ranged, num_invalid, max_date, min_date, total_acc_check,num_valid = check_quality(
+            survey, quality, num_invalid, num_blank, num_ranged, num_invalid, max_date, min_date, total_acc_check, num_valid, attribute_quality = check_quality(
                 survey, hvir_params, type_selector)
             meta['num_ranged']      += num_ranged
             meta['num_blank']       += num_blank
@@ -68,6 +69,7 @@ def process_rows(raw_data, header, hvir_params, converters):
             meta['min_date'] = min(min_date, meta['min_date'])
             meta['max_date'] = max(max_date, meta['max_date'])
             meta['accuracy'] = (num_invalid + num_blank + num_ranged) / (total_acc_check)
+            meta['attribute_quality'].append(attribute_quality)
             quality_assessement.append(quality)
 
         except KeyError:
@@ -147,6 +149,7 @@ def check_quality(survey,hvir_params,type_selector):
     quality = {}
     completeness      = {}
     accuracy          = {}
+    attribute_quality = {}
     max_dates = datetime.strptime('19010101','%Y%m%d')
     min_dates = datetime.strptime('30000101','%Y%m%d')
     num_blank   = 0
@@ -172,17 +175,22 @@ def check_quality(survey,hvir_params,type_selector):
                     acc_check,value,error = accurate_data(data_params,type_selector,survey,k)
                     if acc_check:
                         num_acc += 1
+                        attribute_quality[k] = 2
                     else:
                         if error == 'ranged':
                             num_ranged += 1
                             survey[k] == None
+                            attribute_quality[k] = 1
                         elif error == 'bad data':
                             num_invalid += 1
+                            attribute_quality[k] = 1
                         else:
                             num_invalid += 1
+                            attribute_quality[k] = 1
                     num_k += 1
 
             else:
+                attribute_quality[k] = 0
                 #num_invalid += 1
                 num_blank += 1
 
@@ -232,7 +240,7 @@ def check_quality(survey,hvir_params,type_selector):
         if k in timeliness.keys():
             quality[k+'_tim'] = timeliness[k]
     quality['unique_id'] = survey['unique_id']
-    return survey, quality,num_invalid,num_blank,num_ranged,num_invalid,max_dates,min_dates,total_acc_check,num_acc
+    return survey, quality,num_invalid,num_blank,num_ranged,num_invalid,max_dates,min_dates,total_acc_check,num_acc,attribute_quality
 
 
 def cast_row(row, header, converters, key_fails):
