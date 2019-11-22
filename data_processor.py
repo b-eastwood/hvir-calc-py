@@ -190,7 +190,10 @@ def check_quality(survey,hvir_params,type_selector):
             else:
                 attribute_quality[key_] = 0
                 num_invalid += 1
-    attribute_quality['unique_id'] = survey['unique_id'] #Match on unique id
+    if survey['unique_id'] != None:
+        attribute_quality['unique_id'] = survey['unique_id'] #Match on unique id
+    else:
+        attribute_quality['unique_id'] = 'Missing'
     for cat in data_requirements.keys():
         tot_k = len(data_requirements[cat])
         num_k = 0
