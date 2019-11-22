@@ -147,7 +147,7 @@ def accurate_data(data_params,type_selector,survey,k):
 
 
 def check_quality(survey,hvir_params,type_selector):
-    quality = {}
+    quality = {'unique_id':survey['unique_id']}
     completeness      = {}
     accuracy          = {}
     attribute_quality = {}
@@ -190,7 +190,7 @@ def check_quality(survey,hvir_params,type_selector):
             else:
                 attribute_quality[key_] = 0
                 num_invalid += 1
-
+    attribute_quality['unique_id'] = survey['unique_id'] #Match on unique id
     for cat in data_requirements.keys():
         tot_k = len(data_requirements[cat])
         num_k = 0
@@ -257,7 +257,6 @@ def check_quality(survey,hvir_params,type_selector):
         quality[k+'_acc'] = accuracy[k]
         if k in timeliness.keys():
             quality[k+'_tim'] = timeliness[k]
-    quality['unique_id'] = survey['unique_id']
     return survey, quality,num_invalid,num_blank,num_ranged,num_invalid,num_valid,max_dates,min_dates,total_acc_check,num_acc,attribute_quality
 
 
