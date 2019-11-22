@@ -141,7 +141,7 @@ def accurate_data(data_params,type_selector,survey,k):
         logging.debug('Bad data format %s' % k)
         return False, None, 'bad data'
     except TypeError:
-        logging.debug("Bad type <%s> to %s" % (survey[k],type))
+        logging.debug("Bad type <%s> to %s for %s" % (survey[k],type,k))
         return False, None, 'bad data'
 
 
@@ -165,6 +165,26 @@ def check_quality(survey,hvir_params,type_selector):
         data_overrides    = quality_settings["data_overrides"]
         timeliness = quality_settings["timeliness"]
 
+    print(survey)
+    print()
+    for key_ in data_params:
+        if key_ in survey.keys():
+            if survey[key_] != None:
+                acc_check, value, error = accurate_data(data_params, type_selector, survey, key_)
+                if acc_check:
+                    attribute_quality[key_] = 2
+                else:
+                    if error == 'ranged':
+                        survey[key_] = None
+                        attribute_quality[key_] = 1
+                    elif error == 'bad data':
+                        attribute_quality[key_] = 1
+                    else:
+                        attribute_quality[key_] = 1
+            else:
+                attribute_quality[key_] = 0
+
+    print(attribute_quality)
     for cat in data_requirements.keys():
         tot_k = len(data_requirements[cat])
         num_k = 0
@@ -176,23 +196,18 @@ def check_quality(survey,hvir_params,type_selector):
                     acc_check,value,error = accurate_data(data_params,type_selector,survey,k)
                     if acc_check:
                         num_acc += 1
-                        attribute_quality[k] = 2
                     else:
                         if error == 'ranged':
                             num_ranged += 1
-                            survey[k] == None
-                            attribute_quality[k] = 1
+                            survey[k] = None
                         elif error == 'bad data':
                             num_invalid += 1
-                            attribute_quality[k] = 1
                         else:
                             num_invalid += 1
-                            attribute_quality[k] = 1
                     num_k += 1
                 else:
-                    attribute_quality[k] = 0
+                    num_blank += 1
             else:
-                attribute_quality[k] = 0
                 # num_invalid += 1
                 num_blank += 1
 
@@ -251,31 +266,37 @@ def check_quality(survey,hvir_params,type_selector):
 
 
 def cast_row(row, header, converters, key_fails):
-    survey = {'mass_limit': None,
-              'length_limit': None,
-              'sealed_shoulder_width': None,
-              'seal_flag': None,
-              'sealed_should_width': None,
-              'form_width': None,
-              'seal_width': None}
+    survey = {}
     tmp_row = []
-    for index, cell in enumerate(row):
-
+    for key_ in converters.keys():
         try:
-            if header[index] == 'fin_year':
-                cell = cell[0:4]
-                tmp_row.append(datetime.strptime(str(cell),'%Y'))
-            else:
-                tmp_row.append(converters[header[index]](cell))
-            survey[header[index]] = tmp_row[-1]
-            # print('\t',header[index]+' '*(15-len(header[index])),'\t',index,'\t',cell+' '*(25-len(cell)),'\t',
+            value = row[header.index(key_)]
+            value = converters[key_](value)
+            survey[key_] = value
+        except ValueError:
+            #Not in list
+            value = None
+            survey[key_] = value
+            #key_fails += 1
         except:
-            logging.debug('Failed to cast %s to %s' % (cell,header[index]))
-            # print('Failed to pass row %s, field %s, with value %s' % (row_num,header[index],cell))
-            tmp_row.append(None)
-            survey[header[index]] = None
-            if header[index] not in key_fails.keys():
-                key_fails[header[index]] = 1
-            else:
-                key_fails[header[index]] += 1
+            value = None
+            survey[key_] = value
+            logging.debug('Failed to cast %s to %s' )
+
+        tmp_row.append(value)
+
+    if 'mass_limit' not in survey.keys():
+        survey['mass_limit'] =  None,
+    if 'length_limit' not in survey.keys():
+        survey['length_limit'] =  None,
+    if 'sealed_shoulder_width' not in survey.keys():
+        survey['sealed_shoulder_width'] =  None,
+    if 'seal_flag' not in survey.keys():
+        survey['seal_flag'] =  None,
+    if 'sealed_should_width' not in survey.keys():
+        survey['sealed_should_width'] =  None,
+    if 'form_width' not in survey.keys():
+        survey['form_width'] =  None,
+    if 'seal_width' not in survey.keys():
+        survey['seal_width'] =  None
     return survey, key_fails

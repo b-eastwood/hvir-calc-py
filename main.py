@@ -75,9 +75,7 @@ def main():
     key_fails, failed_rows, surveys,quality_assessment, out_keys,meta = data_processor.process_rows(raw_data, header, params, converters)
     if 'logfile' in params:
        write_log(params,key_fails,raw_data,failed_rows,meta)
-
-    out_header = header + out_keys
-
+    out_header = surveys[0].keys()
     writer.write_data(surveys, out_header, params,rounding=9)
     if len(quality_assessment) > 0:
         writer.write_data(quality_assessment, quality_assessment[0].keys(), params,sub_file='group_qual')
