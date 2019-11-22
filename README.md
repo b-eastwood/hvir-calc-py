@@ -1,7 +1,7 @@
 # HVIR Calculation Method (Python)
 
 ## Overview
-This repository contains source code for the calculation of the Australian Heavy Vehicle Infrastructure Register outputs, being Access (A), Leeway (W) and Ride Quality (R).
+This repository contains source code for the calculation of the Australian Heavy Vehicle Infrastructure Rating outputs, being Access (A), Leeway (W) and Ride Quality (R) Indexes and the Heavy Vehicle Infrastructure Rating (HVIR) itself; and quality assessments of the National Asset Register Dataset (input file).
 
 ## Quickstart 
 -  Install python3 via https://www.python.org/downloads/
