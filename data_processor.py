@@ -60,7 +60,7 @@ def process_rows(raw_data, header, hvir_params, converters):
         meta['complete']   += complete
         surveys.append(survey)
         try:
-            survey, quality, num_invalid, num_blank, num_ranged, num_invalid, max_date, min_date, total_acc_check, num_valid, attribute_quality = check_quality(
+            survey, quality, num_invalid, num_blank, num_ranged, num_invalid, num_valid, max_date, min_date, total_acc_check, num_valid, attribute_quality = check_quality(
                 survey, hvir_params, type_selector)
             meta['num_ranged']      += num_ranged
             meta['num_blank']       += num_blank
@@ -156,6 +156,7 @@ def check_quality(survey,hvir_params,type_selector):
     num_blank   = 0
     num_ranged  = 0
     num_invalid = 0
+    num_valid = 0
     incomplete, complete = 0, 0
     data_params       = hvir_params['data_params']["datatypes"]
     total_acc_check = 0
@@ -165,24 +166,30 @@ def check_quality(survey,hvir_params,type_selector):
         data_overrides    = quality_settings["data_overrides"]
         timeliness = quality_settings["timeliness"]
 
-    print(survey)
-    print()
+
+
     for key_ in data_params:
         if key_ in survey.keys():
             if survey[key_] != None:
                 acc_check, value, error = accurate_data(data_params, type_selector, survey, key_)
                 if acc_check:
                     attribute_quality[key_] = 2
+                    num_valid += 1
                 else:
                     if error == 'ranged':
                         survey[key_] = None
                         attribute_quality[key_] = 1
+                        num_ranged += 1
+                        num_invalid += 1
                     elif error == 'bad data':
                         attribute_quality[key_] = 1
+                        num_invalid += 1
                     else:
                         attribute_quality[key_] = 1
+                        num_invalid += 1
             else:
                 attribute_quality[key_] = 0
+                num_invalid += 1
 
     print(attribute_quality)
     for cat in data_requirements.keys():
@@ -200,16 +207,6 @@ def check_quality(survey,hvir_params,type_selector):
                         if error == 'ranged':
                             num_ranged += 1
                             survey[k] = None
-                        elif error == 'bad data':
-                            num_invalid += 1
-                        else:
-                            num_invalid += 1
-                    num_k += 1
-                else:
-                    num_blank += 1
-            else:
-                # num_invalid += 1
-                num_blank += 1
 
         acc  = num_acc/tot_k
         comp = num_k/tot_k
@@ -262,7 +259,7 @@ def check_quality(survey,hvir_params,type_selector):
         if k in timeliness.keys():
             quality[k+'_tim'] = timeliness[k]
     quality['unique_id'] = survey['unique_id']
-    return survey, quality,num_invalid,num_blank,num_ranged,num_invalid,max_dates,min_dates,total_acc_check,num_acc,attribute_quality
+    return survey, quality,num_invalid,num_blank,num_ranged,num_invalid,num_valid,max_dates,min_dates,total_acc_check,num_acc,attribute_quality
 
 
 def cast_row(row, header, converters, key_fails):
