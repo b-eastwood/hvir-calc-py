@@ -276,7 +276,7 @@ class HvirCalculator:
         elif survey['form_width'] is not None:
             w, methods = self.calc_w_geom_unsealed(survey['form_width']), 'S'  # Calculate for unsealed roads
         else:
-            print('survey',survey)
+
             logging.debug("Couldn't calculate w, road is unsealed, but no from width provided")
             w, methods = 'NA', 'N'
         return w, methods
