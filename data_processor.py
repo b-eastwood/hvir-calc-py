@@ -283,16 +283,8 @@ def cast_row(row, header, converters, key_fails):
 
         tmp_row.append(value)
 
-    if 'mass_limit' not in survey.keys():
-        survey['mass_limit'] =  None,
-    if 'length_limit' not in survey.keys():
-        survey['length_limit'] =  None,
-    if 'sealed_shoulder_width' not in survey.keys():
-        survey['sealed_shoulder_width'] =  None,
     if 'seal_flag' not in survey.keys():
         survey['seal_flag'] =  None,
-    if 'sealed_should_width' not in survey.keys():
-        survey['sealed_should_width'] =  None,
     if 'form_width' not in survey.keys():
         survey['form_width'] =  None,
     if 'seal_width' not in survey.keys():
