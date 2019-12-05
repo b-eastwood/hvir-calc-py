@@ -202,6 +202,7 @@ def check_quality(survey,hvir_params,type_selector):
             if k in survey.keys():
                 total_acc_check += 1
                 if survey[k] != None:
+                    num_k += 1
                     acc_check,value,error = accurate_data(data_params,type_selector,survey,k)
                     if acc_check:
                         num_acc += 1
@@ -209,6 +210,7 @@ def check_quality(survey,hvir_params,type_selector):
                         if error == 'ranged':
                             num_ranged += 1
                             survey[k] = None
+
 
         acc  = num_acc/tot_k
         comp = num_k/tot_k
@@ -249,7 +251,7 @@ def check_quality(survey,hvir_params,type_selector):
             for k in intersection(data_overrides[cat].keys(),survey.keys()):
                 if data_overrides[cat][k] == survey[k]:
                     comp = data_overrides[cat][k][1]
-
+                    acc  = 1
         completeness[cat] = comp
         accuracy[cat]     = acc
 
