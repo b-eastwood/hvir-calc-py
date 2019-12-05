@@ -28,9 +28,10 @@ def get_params(argv):
             keys, vals = zip(*opts)
             for k, key in enumerate(keys):
                 params[arg_keys[key.strip('-')]] = vals[k]
-        required = ['outfile','infile']
+        required = ['outfile','filepath']
         for r in required:
             if r not in params.keys():
+
                 print("A requried parameter <%s> was missing" % r)
                 raise getopt.GetoptError(msg="A requried parameter %s was missing" % r )
     except getopt.GetoptError:
