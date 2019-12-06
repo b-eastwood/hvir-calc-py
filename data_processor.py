@@ -112,7 +112,7 @@ def accurate_data(data_params,type_selector,survey,k):
                     #logging.debug('%s in set for key %s' % (typed, k))
                     return True, typed, None
                 else:
-                    logging.debug('<%s> Out of set %s for key %s' % (typed, rng, k))
+                    logging.debug("'%s' Out of set %s for key %s" % (typed, rng, k))
                     return False, None, 'ranged'
             elif rng_type == 'range':
                 lower, upper = True, True

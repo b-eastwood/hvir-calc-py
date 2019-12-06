@@ -145,7 +145,7 @@ class HvirCalculator:
                 else:
                     return 'NA'
             else:
-                if a != 'NA' and 'r' != 'NA' and w != 'NA':
+                if a != 'NA' and r != 'NA' and w != 'NA':
                     return 0.4*a + 0.4*r + 0.2*w
                 else:
                     return 'NA'
@@ -289,8 +289,7 @@ class HvirCalculator:
         hvir = self.calc_hvir(a,r,w,survey['seal_flag'])
         maxev = self.calc_maxev(survey)
         minev = self.calc_minev(survey)
-        if survey['road_cat'] is None:
-            survey['road_cat'] = "NA"
+
         if survey['road_cat'] == "r0":  # In all cases. If road_Cat is R0 then always return Medium even if undefined
             cat = "Medium"
         else:
