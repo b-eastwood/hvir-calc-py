@@ -219,7 +219,7 @@ class HvirCalculator:
     def r_method_fallback(self, survey):
         if survey['iri'] is None:
             if survey['vcg'] is None or survey['road_cat'] == 'r1' or survey['road_cat'] == 'r2':
-                r = 'NA', 'N'
+                r, methods = 'NA', 'N'
             else:
                 r, methods = self.calc_r_vcg(survey['vcg'], survey['road_cat'])
             return r, methods
