@@ -57,7 +57,7 @@ class HvirCalculator:
         # Calculate the r value using the basic method based on HATI.
         if hati is None:
             logging.debug("Invalid HATI in r-hati, using default ")
-            return 'NA'
+            return 'NA','N'
         else:
             r = (-0.1848 * hati) + 1.0
             return normal_clamp(r),'H'
