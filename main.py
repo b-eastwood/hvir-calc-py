@@ -86,7 +86,6 @@ def main():
         writer.write_data(quality_assessment, quality_assessment[0].keys(), params,sub_file='group_qual')
     if len(meta['attribute_quality']) > 0:
         writer.write_data(meta['attribute_quality'], meta['attribute_quality'][0].keys(),params,sub_file='attr_qual')
-    print('Completed, outfile is here: %s' % params['outfile'])
 
 if __name__ == "__main__":
     main()
