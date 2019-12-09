@@ -1,7 +1,8 @@
 import datetime
+year_keys = ['iri_date','rut_date','crk_date','tex_date']
+fin_keys  = ['fin_year']
 
-
-def create_pbi_log(quality_assessement,attrribute_quality,meta,failed_rows,params):
+def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_rows,params):
     write_lines = []
     total_rows = len(quality_assessement)
     sum_cells = (len(quality_assessement)*len(quality_assessement[0].keys()))
@@ -24,14 +25,47 @@ def create_pbi_log(quality_assessement,attrribute_quality,meta,failed_rows,param
 
             write_lines.append([k +' VALID',valid])
             write_lines.append([k + ' INVALID', invalid])
-    for k in attrribute_quality[0].keys():
-        zero = sum([a[k] == 0 for a in attrribute_quality])/len(attrribute_quality)
-        one  = sum([a[k] == 1 for a in attrribute_quality])/len(attrribute_quality)
-        two  = sum([a[k] == 2 for a in attrribute_quality])/len(attrribute_quality)
+    for k in atrribute_quality[0].keys():
+        zero = sum([a[k] == 0 for a in atrribute_quality])/len(atrribute_quality)
+        one  = sum([a[k] == 1 for a in atrribute_quality])/len(atrribute_quality)
+        two  = sum([a[k] == 2 for a in atrribute_quality])/len(atrribute_quality)
 
         write_lines.append([k+' 0',zero])
         write_lines.append([k+' 1',one])
         write_lines.append([k+' 2',two])
+
+    date_bins = {}
+    fin_date_bins = {}
+    fin_date_bins['Missing'] = 0
+    date_bins['Missing'] = 0
+    for k in surveys:
+        dates = []
+        for d_key in year_keys:
+            if k[d_key] == None:
+                dates.append(None)
+            else:
+                dates.append(k[d_key].year)
+        if k[fin_keys[0]] == None:
+            fin_date_bins['Missing'] += 1
+        else:
+            try:
+                fin_date_bins[k[fin_keys[0]].keys] += 1
+            except:
+                fin_date_bins[k[fin_keys[0]].keys] =  1
+
+        if len(set(dates)) == 1 and dates[0] == None:
+            date_bins['Missing'] += 1
+        else:
+            d = min(dates)
+            try:
+                date_bins[d] += 1
+            except KeyError:
+                date_bins[d] = 1
+    total = sum([date_bins[f] for f in date_bins.keys()])
+    for k in date_bins.keys():
+        write_lines.append(['Condition Data %s' % k,date_bins[k]/total])
+    for k in fin_date_bins.keys():
+        write_lines.append(['Financial Year %s' % k,fin_date_bins[k]/total])
     return write_lines
 
 

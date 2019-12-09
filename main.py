@@ -67,7 +67,7 @@ def main():
         if params['logfile'].endswith('txt'):
             writer.write_log(logfiler.write_txt_log(params, key_fails, raw_data, failed_rows, meta), params['logfile'], 'Log:')
         elif params['logfile'].endswith('csv'):
-            writer.write_log(logfiler.create_pbi_log(quality_assessment, meta['attribute_quality'], meta, failed_rows,params), params['logfile'], ['Key', 'Value'])
+            writer.write_log(logfiler.create_pbi_log(surveys,quality_assessment, meta['attribute_quality'], meta, failed_rows,params), params['logfile'], ['Key', 'Value'])
         else:
             logging.CRITICAL('Logfile not written, wrong file extension provided')
     out_header = surveys[0].keys()
