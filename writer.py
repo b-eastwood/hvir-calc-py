@@ -3,6 +3,7 @@ import csv
 import logging
 from datetime import datetime
 from datetime import date as date_obj
+
 def append_id(filename,id):
     return "{0}_{2}.{1}".format(*filename.rsplit('.', 1) + [id])
 

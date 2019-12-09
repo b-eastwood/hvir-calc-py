@@ -71,10 +71,15 @@ def main():
         else:
             logging.CRITICAL('Logfile not written, wrong file extension provided')
     out_header = surveys[0].keys()
-    writer.write_data(surveys, out_header, params,rounding=9)
-    if len(quality_assessment) > 0:
-        writer.write_data(quality_assessment, quality_assessment[0].keys(), params,sub_file='group_qual')
-    if len(meta['attribute_quality']) > 0:
-        writer.write_data(meta['attribute_quality'], meta['attribute_quality'][0].keys(),params,sub_file='attr_qual')
+    if params['outfile'].endswith('.csv'):
+        writer.write_data(surveys, out_header, params,rounding=9)
+        if len(quality_assessment) > 0:
+            writer.write_data(quality_assessment, quality_assessment[0].keys(), params, sub_file='group_qual')
+        if len(meta['attribute_quality']) > 0:
+            writer.write_data(meta['attribute_quality'], meta['attribute_quality'][0].keys(), params,
+                              sub_file='attr_qual')
+    else:
+        logging.critical("Your output filename: %s must end with .csv" % params['outfile'])
+
 if __name__ == "__main__":
     main()
