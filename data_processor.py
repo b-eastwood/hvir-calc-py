@@ -6,6 +6,7 @@ import json
 
 def intersection(lst1, lst2):
     return list(set(lst1) & set(lst2))
+
 class datetime_parser:
     def __init__(self,formats):
         self.formats = formats
@@ -17,9 +18,6 @@ class datetime_parser:
             success = False
             i = 0
             while success == False and i < len(self.formats):
-
-                typed = datetime.strptime(val, self.formats[i])
-
                 try:
                     typed = datetime.strptime(val,self.formats[i])
                     success = True

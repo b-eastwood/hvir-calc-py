@@ -52,7 +52,6 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
                 fin_date_bins[k[fin_keys[0]].keys] += 1
             except:
                 fin_date_bins[k[fin_keys[0]].keys] =  1
-
         if len(set(dates)) == 1 and dates[0] == None:
             date_bins['Missing'] += 1
         else:
@@ -61,6 +60,7 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
                 date_bins[d] += 1
             except KeyError:
                 date_bins[d] = 1
+
     total = sum([date_bins[f] for f in date_bins.keys()])
     for k in date_bins.keys():
         write_lines.append(['Condition Data %s' % k,date_bins[k]/total])

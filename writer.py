@@ -40,7 +40,7 @@ def write_log(lines,filename,out_header):
                     writer.writerow(l)
                 logging.info('Completed, outfile is here: %s' % filename)
         except PermissionError:
-            logging.CRITICAL("Failed to write to disk, do you have the output file open?")
+            logging.critical("Failed to write to disk, do you have the output file open?")
             exit(13)
         except FileNotFoundError:
             logging.critical("Couldn't write to output directory not found %s" % filename)
