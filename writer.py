@@ -89,6 +89,6 @@ def write_data(surveys, out_header, params,rounding=9,sub_file=None):
                 logging.info('Completed, outfile is here: %s' % params['outfile'])
 
         except PermissionError:
-            logging.CRITICAL("Failed to write to disk, do you have the output file open?")
+            logging.critical("Failed to write to disk, do you have the output file open?")
 
-            exit(0)
+            exit(13)

@@ -15,10 +15,14 @@ def get_data(params):
         csv_reader = load_stdin(data_stream)
         header, raw_data = read_file(csv_reader)
     else:
-        logging.debug('Reading from file')
-        csv_file, data_stream = load_csv(params['filepath'])
-        header, raw_data = read_file(data_stream)
-        csv_file.close()
+        try:
+            logging.debug('Reading from file')
+            csv_file, data_stream = load_csv(params['filepath'])
+            header, raw_data = read_file(data_stream)
+            csv_file.close()
+        except FileNotFoundError:
+            logging.critical("Input file Not Found: %s",params['filepath'])
+            exit(1)
     return header, raw_data
 
 

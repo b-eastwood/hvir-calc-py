@@ -64,8 +64,12 @@ def main():
     type_selector, converters = reader.validate_data_format(params['data_params'], header)
     key_fails, failed_rows, surveys,quality_assessment, out_keys,meta = data_processor.process_rows(raw_data, header, params, converters)
     if 'logfile' in params:
-        #writer.write_log(logfiler.write_txt_log(params, key_fails, raw_data, failed_rows, meta), params['logfile'], 'Log:')
-        writer.write_log(logfiler.create_pbi_log(quality_assessment, meta['attribute_quality'], meta, failed_rows,params), params['logfile'], ['Key', 'Value'])
+        if params['logfile'].endswith('txt'):
+            writer.write_log(logfiler.write_txt_log(params, key_fails, raw_data, failed_rows, meta), params['logfile'], 'Log:')
+        elif params['logfile'].endswith('csv'):
+            writer.write_log(logfiler.create_pbi_log(quality_assessment, meta['attribute_quality'], meta, failed_rows,params), params['logfile'], ['Key', 'Value'])
+        else:
+            logging.CRITICAL('Logfile not written, wrong file extension provided')
     out_header = surveys[0].keys()
     writer.write_data(surveys, out_header, params,rounding=9)
     if len(quality_assessment) > 0:
