@@ -40,7 +40,10 @@ def write_log(lines,filename,out_header):
                 logging.info('Completed, outfile is here: %s' % filename)
         except PermissionError:
             logging.CRITICAL("Failed to write to disk, do you have the output file open?")
-            exit(0)
+            exit(13)
+        except FileNotFoundError:
+            logging.critical("Couldn't write to output directory not found %s" % filename)
+            exit(1)
 
 def write_data(surveys, out_header, params,rounding=9,sub_file=None):
     if not sys.stdout.isatty():
@@ -90,5 +93,7 @@ def write_data(surveys, out_header, params,rounding=9,sub_file=None):
 
         except PermissionError:
             logging.critical("Failed to write to disk, do you have the output file open?")
-
+            exit(13)
+        except FileNotFoundError:
+            logging.critical("Couldn't write to output directory not found %s" % params['outfile'])
             exit(13)
