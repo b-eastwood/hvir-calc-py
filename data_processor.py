@@ -6,13 +6,40 @@ import json
 
 def intersection(lst1, lst2):
     return list(set(lst1) & set(lst2))
+class datetime_parser:
+    def __init__(self,formats):
+        self.formats = formats
+    def parse(self,val):
+        if val == None or val == '':
+            typed = None
+            return typed
+        else:
+            success = False
+            i = 0
+            while success == False and i < len(self.formats):
+
+                typed = datetime.strptime(val, self.formats[i])
+
+                try:
+                    typed = datetime.strptime(val,self.formats[i])
+                    success = True
+                except ValueError:
+                    pass
+                    logging.debug("Failed to cast datetime %s with format %s" % (val, self.formats[i]))
+                if success:
+                    return typed
+                i += 1
+
+
+
 
 def create_typer(datetime_format):
     # To add date and range check into the type selector
+    dt = datetime_parser(datetime_format)
     type_selector = {'int':      lambda val: (int(val) if val != '' else None),
                      'float':    lambda val: (float(val) if val != '' else None),
                      'bool':     lambda val: (bool(int(val)) if val != '' else None),
-                     'datetime': lambda val: (val if type(val) == datetime else datetime.strptime(val, datetime_format) if val != '' else None),
+                     'datetime': dt.parse,
                      'str':      lambda val: (str(val).lower() if val != '' else None)
                      }
     return type_selector
@@ -135,13 +162,13 @@ def accurate_data(data_params,type_selector,survey,k):
                 logging.critical('bad range specified in config file fro key %s' % k)
                 return False, None, 'ranged'
         else:
-            logging.debug('data %s for key is missing ' %  k)
+            logging.debug('data %s for key is missing ' % k)
             return False, None, 'missing'
     except KeyError:
         logging.debug('Bad data format %s' % k)
         return False, None, 'bad data'
     except TypeError:
-        logging.debug("Bad type <%s> to %s for %s" % (survey[k],type,k))
+        logging.debug("Bad type <%s> to %s for %s" % (survey[k], type, k))
         return False, None, 'bad data'
 
 
@@ -270,6 +297,7 @@ def cast_row(row, header, converters, key_fails):
     tmp_row = []
     for key_ in converters.keys():
         try:
+            t_val = row[header.index(key_)]
             value = row[header.index(key_)]
             value = converters[key_](value)
             survey[key_] = value
@@ -281,7 +309,7 @@ def cast_row(row, header, converters, key_fails):
         except:
             value = None
             survey[key_] = value
-            logging.debug('Failed to cast %s to %s' )
+            logging.debug('Failed to cast %s to %s' % (t_val, key_))
 
         tmp_row.append(value)
 

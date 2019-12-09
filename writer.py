@@ -12,6 +12,36 @@ def financial_year_formatter(date):
     elif date.date() < date_obj(date.year, 7, 1):
         return str(date.year-1) +'-'+ str((date.year))[2:]
 
+def write_log(lines,filename,out_header):
+    new_lines = []
+    for l in lines:
+        l_dict = {}
+        i = 0
+        for v in l:
+            l_dict[out_header[i]] = v
+            i += 1
+        new_lines.append(l_dict)
+    lines = new_lines
+    if not sys.stdout.isatty():
+        # print('Writing to stdout')
+        writer = csv.DictWriter(sys.stdout, fieldnames=out_header, lineterminator='\n')
+        writer.writeheader()
+
+        for l in lines:
+            writer.writerow(l)
+    else:
+        logging.debug('Writing to location: %s' % filename)
+        try:
+            with open(filename, mode='w', newline='') as csv_file:
+                writer = csv.DictWriter(csv_file, fieldnames=out_header)
+                writer.writeheader()
+                for l in lines:
+                    writer.writerow(l)
+                logging.info('Completed, outfile is here: %s' % filename)
+        except PermissionError:
+            logging.CRITICAL("Failed to write to disk, do you have the output file open?")
+            exit(0)
+
 def write_data(surveys, out_header, params,rounding=9,sub_file=None):
     if not sys.stdout.isatty():
         # print('Writing to stdout')
@@ -59,5 +89,6 @@ def write_data(surveys, out_header, params,rounding=9,sub_file=None):
                 logging.info('Completed, outfile is here: %s' % params['outfile'])
 
         except PermissionError:
-            logging.WARNING("Failed to write to disk, do you have the output file open?")
-            exit(1)
+            logging.CRITICAL("Failed to write to disk, do you have the output file open?")
+
+            exit(0)
