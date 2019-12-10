@@ -26,13 +26,14 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
             write_lines.append([k +' VALID',valid])
             write_lines.append([k + ' INVALID', invalid])
     for k in atrribute_quality[0].keys():
-        zero = sum([a[k] == 0 for a in atrribute_quality])/len(atrribute_quality)
-        one  = sum([a[k] == 1 for a in atrribute_quality])/len(atrribute_quality)
-        two  = sum([a[k] == 2 for a in atrribute_quality])/len(atrribute_quality)
+        if k != 'unique_id':
+            zero = sum([a[k] == 0 for a in atrribute_quality])/len(atrribute_quality)
+            one  = sum([a[k] == 1 for a in atrribute_quality])/len(atrribute_quality)
+            two  = sum([a[k] == 2 for a in atrribute_quality])/len(atrribute_quality)
 
-        write_lines.append([k+' 0',zero])
-        write_lines.append([k+' 1',one])
-        write_lines.append([k+' 2',two])
+            write_lines.append([k+' 0',zero])
+            write_lines.append([k+' 1',one])
+            write_lines.append([k+' 2',two])
 
     date_bins = {}
     fin_date_bins = {}
