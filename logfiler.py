@@ -50,9 +50,9 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
             fin_date_bins['Missing'] += 1
         else:
             try:
-                fin_date_bins[k[fin_keys[0]].keys] += 1
+                fin_date_bins[k[fin_keys[0]].keys()] += 1
             except:
-                fin_date_bins[k[fin_keys[0]].keys] =  1
+                fin_date_bins[k[fin_keys[0]].keys()] =  1
         if len(set(dates)) == 1 and dates[0] == None:
             date_bins['Missing'] += 1
         else:
