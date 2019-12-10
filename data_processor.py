@@ -10,14 +10,20 @@ def intersection(lst1, lst2):
 class datetime_parser:
     def __init__(self,formats):
         self.formats = formats
-    def parse(self,val):
+    def parse(self,val,fin_year=False):
         if val == None or val == '':
             typed = None
             return typed
         else:
+            if fin_year:
+                t = str(val).split('/')
+                t = str(t[0]) + '0101'
+                val = t
+
             success = False
             i = 0
             while success == False and i < len(self.formats):
+
                 try:
                     typed = datetime.strptime(val,self.formats[i])
                     success = True
@@ -27,8 +33,6 @@ class datetime_parser:
                 if success:
                     return typed
                 i += 1
-
-
 
 
 def create_typer(datetime_format):
@@ -263,7 +267,7 @@ def check_quality(survey,hvir_params,type_selector):
                         min_dates = min(min_dates, min_d)
                 else:
                     incomplete += 1
-            if cat != 'fin_dat':
+            if cat != 'fin_year':
                 timeliness[cat] = min_d
             elif min_d == 'Missing':
                 timeliness[cat] = 'Missing'
@@ -297,7 +301,8 @@ def cast_row(row, header, converters, key_fails):
         try:
             t_val = row[header.index(key_)]
             value = row[header.index(key_)]
-            value = converters[key_](value)
+
+            value = converters[key_](value,fin_year=key_=='fin_year')
             survey[key_] = value
         except ValueError:
             #Not in list
