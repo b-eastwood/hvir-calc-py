@@ -61,7 +61,7 @@ def read_file(csv_reader):
             raw_data.append(row)
             line_count += 1
 
-    logging.debug(f'Read {line_count} lines.')
+    logging.debug('Read %s lines.' % str(line_count))
     return header, raw_data
 
 

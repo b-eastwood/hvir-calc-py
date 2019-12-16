@@ -14,30 +14,35 @@ def financial_year_formatter(date):
         return str(date.year-1) +'-'+ str((date.year))[2:]
 
 def write_log(lines,filename,out_header):
-    new_lines = []
-    for l in lines:
-        l_dict = {}
-        i = 0
-        for v in l:
-            l_dict[out_header[i]] = v
-            i += 1
-        new_lines.append(l_dict)
-    lines = new_lines
+    #new_lines = []
+    #for l in lines:
+    l_dict = {}
+        #i = 0
+        #for v in l:
+        #    l_dict[out_header[i]] = v
+        #    i += 1
+        #new_lines.append(l_dict)
+    n = 0
+    #lines = new_lines
     if not sys.stdout.isatty():
         # print('Writing to stdout')
         writer = csv.DictWriter(sys.stdout, fieldnames=out_header, lineterminator='\n')
         writer.writeheader()
 
         for l in lines:
+            print(l)
             writer.writerow(l)
     else:
         logging.debug('Writing to location: %s' % filename)
         try:
             with open(filename, mode='w', newline='') as csv_file:
-                writer = csv.DictWriter(csv_file, fieldnames=out_header)
-                writer.writeheader()
+                #writer = csv.(csv_file, fieldnames=out_header)
+                #writer.writeheader()
                 for l in lines:
-                    writer.writerow(l)
+
+                    l_str = ','.join(map(str, l))
+                    csv_file.write(l_str)
+                    csv_file.write('\n')
                 logging.info('Completed, outfile is here: %s' % filename)
         except PermissionError:
             logging.critical("Failed to write to disk, do you have the output file open?")
