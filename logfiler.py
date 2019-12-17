@@ -77,9 +77,9 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
             fin_date_bins['Missing'] += 1
         else:
             try:
-                fin_date_bins[str(k[fin_keys[0]].year) + '/' + str(k[fin_keys[0]].year+1)[2:]] += 1
+                fin_date_bins[(k[fin_keys[0]].year+1)] += 1
             except:
-                fin_date_bins[str(k[fin_keys[0]].year) + '/' + str(k[fin_keys[0]].year+1)[2:]] =  1
+                fin_date_bins[(k[fin_keys[0]].year+1)] =  1
         if len(set(dates)) == 1 and dates[0] == None:
             date_bins['Missing'] += 1
         else:
@@ -101,20 +101,18 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
                 all_dates[k][1] = fin_date_bins[k]/total
             except: #Need to add this date
                 all_dates[k] = ['',fin_date_bins[k]/total]
-
+    #print('Fin date bins',fin_date_bins.keys())
     missing_line = ['Missing','','']
     if 'Missing' in date_bins.keys():
         missing_line[1] = date_bins['Missing']/total
     if 'Missing' in fin_date_bins.keys():
         missing_line[2] = fin_date_bins['Missing']/total
-
     write_lines.append(missing_line)
     sorted_keys = list(all_dates.keys())
     sorted_keys.sort()
     for k in sorted_keys:
         write_lines.append([k,all_dates[k][0],all_dates[k][1]])
     ds_3 = write_lines
-
     #Now to combine the three datastructures
     vert_data = []
     for i in range(max([len(ds_2),len(ds_3)])):
@@ -135,7 +133,7 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
             vert_data[-1] = vert_data[-1] + dummy_cols
 
     #Combine ds1 and vert_data
-    hoz_offset = len(ds_1[0])
+    hoz_offset = len(ds_1[0])+1
     write_lines = []
     for i in range(len(vert_data)):
         if i > 1:

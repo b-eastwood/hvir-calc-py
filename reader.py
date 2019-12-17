@@ -82,5 +82,5 @@ def validate_data_format(settings, header):
         converters[key.lower()] = type_selector[settings['datatypes'][key.lower()]['type']]
     for key in header:
         if key not in converters:
-            raise KeyError("One of the header names in the csv does not match the converter list %s  Converter list %s" % (key, converters.keys()))
+            raise KeyError("One of the header names <%s> in the csv does not match the converter list: %s" % (key, str(list(converters.keys()))))
     return type_selector, converters

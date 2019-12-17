@@ -4,6 +4,15 @@ from datetime import datetime
 from datetime import date as date_class
 import json
 
+type_dict = {"str":[str,'A'],
+             "datetime":[datetime,datetime.now()],
+             "float":[float,0.1],
+             "int":[int,1],
+             "bool":[bool,False]
+             }
+
+
+
 def intersection(lst1, lst2):
     return list(set(lst1) & set(lst2))
 
@@ -19,17 +28,19 @@ class datetime_parser:
                 t = str(val).split('/')
                 t = str(t[0]) + '0101'
                 val = t
+                #logging.debug('Stripped datetime as was fin year %s',val)
 
             success = False
             i = 0
             while success == False and i < len(self.formats):
-
                 try:
                     typed = datetime.strptime(val,self.formats[i])
                     success = True
-                except ValueError:
+                    #logging.debug("Sucessfully cast datetime %s with format %s" % (val, self.formats[i]))
+
+                except ValueError as e:
                     pass
-                    logging.debug("Failed to cast datetime %s with format %s" % (val, self.formats[i]))
+                    #logging.debug("Failed to cast datetime %s with format %s error: %s" % (val, self.formats[i], e))
                 if success:
                     return typed
                 i += 1
@@ -71,7 +82,7 @@ def process_rows(raw_data, header, hvir_params, converters):
     for row_num, row in enumerate(raw_data):
         survey = None
         try:
-            survey, key_fails = cast_row(row, header, converters, key_fails)
+            survey, key_fails = cast_row(row, header, converters, key_fails,hvir_params['data_params'])
         except:
             logging.debug("Couldn't read in this row: %s" % row_num)
             failed_rows.append(row_num)
@@ -130,12 +141,15 @@ def accurate_data(data_params,type_selector,survey,k):
     # Check range and format
     rng = data_params[k]['domain']['range']
     rng_type = data_params[k]['domain']['range_type']
-    type = data_params[k]['type']
-    if type == 'datetime':
+    the_type = data_params[k]['type']
+    if the_type == 'datetime':
         rng = [datetime.now() if x == '{dnow}' else None if x == 'None' else datetime.strptime(x,'%Y%m%d') for x in rng]  # Parse in the  datetime ranges
     try:
         if k in survey.keys():
-            typed = type_selector[type](survey[k])
+            if type(survey[k]) != type_dict[the_type][0]:
+                typed = type_selector[the_type](survey[k])
+            else:
+                typed = survey[k]
             if rng_type == 'set':
                 if typed in rng:
                     #logging.debug('%s in set for key %s' % (typed, k))
@@ -166,11 +180,11 @@ def accurate_data(data_params,type_selector,survey,k):
         else:
             logging.debug('data %s for key is missing ' % k)
             return False, None, 'missing'
-    except KeyError:
-        logging.debug('Bad data format %s' % k)
+    except KeyError as e:
+        logging.debug('Bad data format %s, error %s' % (k,e))
         return False, None, 'bad data'
-    except TypeError:
-        logging.debug("Bad type <%s> to %s for %s" % (survey[k], type, k))
+    except TypeError as e:
+        logging.debug("Bad type <%s> to %s for %s, error %s" % (survey[k], type, k, e))
         return False, None, 'bad data'
 
 
@@ -195,8 +209,6 @@ def check_quality(survey,hvir_params,type_selector):
         data_overrides    = quality_settings["data_overrides"]
         timeliness = quality_settings["timeliness"]
 
-
-
     for key_ in data_params:
         if key_ in survey.keys():
             if survey[key_] != None:
@@ -220,7 +232,7 @@ def check_quality(survey,hvir_params,type_selector):
                 attribute_quality[key_] = 0
                 num_invalid += 1
     if survey['unique_id'] != None:
-        attribute_quality['unique_id'] = survey['unique_id'] #Match on unique id
+        attribute_quality['unique_id'] = survey['unique_id'] # Match on unique id
     else:
         attribute_quality['unique_id'] = 'Missing'
     for cat in data_requirements.keys():
@@ -236,9 +248,11 @@ def check_quality(survey,hvir_params,type_selector):
                     if acc_check:
                         num_acc += 1
                     else:
+                        survey[k] = None
                         if error == 'ranged':
                             num_ranged += 1
                             survey[k] = None
+
 
 
         acc  = num_acc/tot_k
@@ -294,25 +308,28 @@ def check_quality(survey,hvir_params,type_selector):
     return survey, quality,num_invalid,num_blank,num_ranged,num_invalid,num_valid,max_dates,min_dates,total_acc_check,num_acc,attribute_quality
 
 
-def cast_row(row, header, converters, key_fails):
+def cast_row(row, header, converters, key_fails,data_types):
     survey = {}
     tmp_row = []
     for key_ in converters.keys():
         try:
             t_val = row[header.index(key_)]
             value = row[header.index(key_)]
-
-            value = converters[key_](value,fin_year=key_=='fin_year')
+            if data_types['datatypes'][key_]['type'] == 'datetime':
+                #logging.debug('Converting Fin year Value: %s with Key: %s' % (key_,value))
+                value = converters[key_](value,fin_year=key_=='fin_year')
+            else:
+                value = converters[key_](value)
             survey[key_] = value
         except ValueError:
             #Not in list
             value = None
             survey[key_] = value
             #key_fails += 1
-        except:
+        except Exception as e:
             value = None
             survey[key_] = value
-            logging.debug('Failed to cast %s to %s' % (t_val, key_))
+            logging.debug('Failed to cast %s to class %s with type, error %s' % (t_val, key_ ,e))
 
         tmp_row.append(value)
 
