@@ -13,7 +13,7 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
     sum_cells = (len(quality_assessement)*len(quality_assessement[0].keys()))
     no_data      = meta['incomplete']/sum_cells
     invalid_data = meta['num_invalid']/sum_cells - no_data
-    valid_data =  1 - no_data -invalid_data
+    valid_data =  1 - no_data - invalid_data
 
     # Comprised of 3 data structures
     # One is two rows, keys on r1, data on r2
@@ -22,9 +22,9 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
     # third col is fin year validity
 
 
-    write_lines.append(['Process Date',datetime.datetime.now().strftime("%B %d, %Y")])
+    write_lines.append(['Process Date',datetime.datetime.now().strftime("%d/%m/%Y")])
     write_lines.append(['Total rows in dataset', total_rows])
-    write_lines.append(['Total attributes in dataset',meta['num_valid']+meta['num_invalid'] -meta['num_blank']])
+    write_lines.append(['Total attributes in dataset',len(surveys)*55])
     write_lines.append(['Blanks', no_data])
     write_lines.append(['Invalid data', invalid_data])
     write_lines.append(['Valid data', valid_data])
@@ -46,7 +46,7 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
 
 
 
-    write_lines = [['Header names','Data Items','Blanks','Invalid data','Valid data']]
+    write_lines = [['Header names','Data Items','0 (Blank)','1 (Invalid)','2 (Valid)']]
 
     for k in atrribute_quality[0].keys():
         if k != 'unique_id':
