@@ -46,7 +46,7 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
 
 
 
-    write_lines = [['Header names','Data Items','0 (Blank)','1 (Invalid)','2 (Valid)']]
+    write_lines = [['Header names','0 (Blank)','1 (Invalid)','2 (Valid)']]
 
     for k in atrribute_quality[0].keys():
         if k != 'unique_id':
@@ -133,7 +133,7 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
             vert_data[-1] = vert_data[-1] + dummy_cols
 
     #Combine ds1 and vert_data
-    hoz_offset = len(ds_1[0])+1
+    hoz_offset = len(ds_1[0])
     write_lines = []
     for i in range(len(vert_data)):
         if i > 1:
