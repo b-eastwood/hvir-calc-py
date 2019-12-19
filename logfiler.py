@@ -46,19 +46,19 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
 
 
 
-    write_lines = [['Header names','0 (Blank)','1 (Invalid)','2 (Valid)']]
+    write_lines = [['Header names','Data Items','0 (Blank)','1 (Invalid)','2 (Valid)']]
 
     for k in atrribute_quality[0].keys():
         if k != 'unique_id':
             zero = sum([a[k] == 0 for a in atrribute_quality])/len(atrribute_quality)
             one  = sum([a[k] == 1 for a in atrribute_quality])/len(atrribute_quality)
             two  = sum([a[k] == 2 for a in atrribute_quality])/len(atrribute_quality)
-
+            old_k = k
             k = params['data_params']['logfile_col_names'][k] # overwrite with output key
             #write_lines.append([k+' 0',zero])
             #$write_lines.append([k+' 1',one])
             #write_lines.append([k+' 2',two])
-            write_lines.append([k,zero,one,two])
+            write_lines.append([old_k,k,zero,one,two])
 
     ds_2  = write_lines
 
