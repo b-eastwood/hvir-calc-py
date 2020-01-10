@@ -62,7 +62,7 @@ def main():
     params['data_params'], type_dict = reader.get_data_settings(params['config_file'])
     header, raw_data = reader.get_data(params)
     type_selector, converters = reader.validate_data_format(params['data_params'], header)
-    key_fails, failed_rows, surveys,quality_assessment, out_keys,meta = data_processor.process_rows(raw_data, header, params, converters)
+    key_fails, failed_rows, surveys,quality_assessment, out_keys,meta, raw_surveys = data_processor.process_rows(raw_data, header, params, converters)
     if 'logfile' in params:
         if params['logfile'].endswith('txt'):
             writer.write_log(logfiler.write_txt_log(params, key_fails, raw_data, failed_rows, meta), params['logfile'], 'Log:')
@@ -72,10 +72,10 @@ def main():
             logging.CRITICAL('Logfile not written, wrong file extension provided')
     out_header = surveys[0].keys()
     if params['outfile'].endswith('.csv'):
-        writer.write_data(surveys, out_header, params,rounding=9)
+        writer.write_data(surveys, out_header, params,rounding=9,raw_surveys=raw_surveys)
         if len(quality_assessment) > 0:
             writer.write_data(quality_assessment, quality_assessment[0].keys(), params, sub_file='group_qual')
-        if len(meta['attribute_quality']) > 0:
+        if len(meta['attribute_quality']) > 0 and 'logfile' in params:
             writer.write_data(meta['attribute_quality'], meta['attribute_quality'][0].keys(), params,
                               sub_file='attr_qual')
     else:

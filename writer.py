@@ -51,16 +51,19 @@ def write_log(lines,filename,out_header):
             logging.critical("Couldn't write to output directory not found %s" % filename)
             exit(1)
 
-def write_data(surveys, out_header, params,rounding=9,sub_file=None):
+def write_data(surveys, out_header, params,rounding=9,sub_file=None,raw_surveys=None):
     if not sys.stdout.isatty():
         # print('Writing to stdout')
         writer = csv.DictWriter(sys.stdout, fieldnames=out_header, lineterminator='\n')
         writer.writeheader()
 
-        for s in surveys:
+        for i,s in enumerate(surveys):
             ws = {}
             for k in s.keys():
                 if k in out_header:
+                    if s[k] == None and raw_surveys != None:
+                        #Use raw value instead
+                        s[k] = raw_surveys[i][k]
                     if type(s[k]) == type(0.1):
                         ws[k] = round(s[k],rounding)
                     elif type(s[k]) == datetime:
@@ -81,19 +84,25 @@ def write_data(surveys, out_header, params,rounding=9,sub_file=None):
             with open(filename, mode='w', newline='') as csv_file:
                 writer = csv.DictWriter(csv_file, fieldnames=out_header)
                 writer.writeheader()
-                for s in surveys:
+                for i,s in enumerate(surveys):
                     ws = {}
+
                     for k in s.keys():
+
                         if k in out_header:
-                            if type(s[k]) == type(0.1):
+                            if s[k] == None and raw_surveys != None:
+                                # Use raw value instead
+                                s[k] = raw_surveys[i][k]
+                            if type(s[k]) == float :
                                 ws[k] = round(s[k], rounding)
                             elif type(s[k]) == datetime:
                                 if  'fin_year' in k:
                                     ws[k] = financial_year_formatter(s[k])
                                 else:
-                                    ws[k] = s[k].strftime("%Y%m%d")
+                                    ws[k] = s[k].strftime("%Y")
                             else:
                                 ws[k] = s[k]
+
                     writer.writerow(ws)
                 logging.info('Completed, outfile is here: %s' % params['outfile'])
 

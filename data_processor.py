@@ -60,6 +60,7 @@ def create_typer(datetime_format):
 
 def process_rows(raw_data, header, hvir_params, converters):
     surveys = []
+    raw_surveys = []
     failed_rows = []
     key_fails = {}
     calculator = methods.HvirCalculator()
@@ -82,10 +83,11 @@ def process_rows(raw_data, header, hvir_params, converters):
     for row_num, row in enumerate(raw_data):
         survey = None
         try:
-            survey, key_fails = cast_row(row, header, converters, key_fails,hvir_params['data_params'])
+            survey, key_fails,raw_survey = cast_row(row, header, converters, key_fails,hvir_params['data_params'])
         except:
             logging.debug("Couldn't read in this row: %s" % row_num)
             failed_rows.append(row_num)
+
         survey, out_keys = calculator.method_logic(survey, hvir_params)
         if survey['hvir'] == 'NA':
             failed_rows.append(row_num)
@@ -99,6 +101,7 @@ def process_rows(raw_data, header, hvir_params, converters):
         meta['incomplete'] += incomplete
         meta['complete']   += complete
         surveys.append(survey)
+        raw_surveys.append(raw_survey)
         try:
             survey, quality, num_invalid, num_blank, num_ranged, num_invalid, num_valid, max_date, min_date, total_acc_check, num_valid, attribute_quality = check_quality(
                 survey, hvir_params, type_selector)
@@ -126,7 +129,7 @@ def process_rows(raw_data, header, hvir_params, converters):
         meta['max_date'] = 'Unknown'
     else:
         meta['max_date'] = meta['max_date'].strftime('%d/%m/%Y')
-    return key_fails, failed_rows, surveys, quality_assessement, out_keys,meta
+    return key_fails, failed_rows, surveys, quality_assessement, out_keys,meta,raw_surveys
 
 def get_num_in(survey,keys):
     num = 0
@@ -311,10 +314,14 @@ def check_quality(survey,hvir_params,type_selector):
 def cast_row(row, header, converters, key_fails,data_types):
     survey = {}
     tmp_row = []
+    raw_survey = {}
     for key_ in converters.keys():
         try:
             t_val = row[header.index(key_)]
             value = row[header.index(key_)]
+            raw_value = row[header.index(key_)]
+            raw_survey[key_] =  raw_value
+
             if data_types['datatypes'][key_]['type'] == 'datetime':
                 #logging.debug('Converting Fin year Value: %s with Key: %s' % (key_,value))
                 value = converters[key_](value,fin_year=key_=='fin_year')
@@ -339,4 +346,4 @@ def cast_row(row, header, converters, key_fails,data_types):
         survey['form_width'] =  None,
     if 'seal_width' not in survey.keys():
         survey['seal_width'] =  None
-    return survey, key_fails
+    return survey, key_fails, raw_survey
