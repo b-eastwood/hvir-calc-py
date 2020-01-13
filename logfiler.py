@@ -68,11 +68,13 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
     date_bins['Missing'] = 0
     for k in surveys:
         dates = []
+        real_dates = []
         for d_key in year_keys:
             if k[d_key] == None:
                 dates.append(None)
             else:
                 dates.append(k[d_key].year)
+                real_dates.append(k[d_key].year)
         if k[fin_keys[0]] == None:
             fin_date_bins['Missing'] += 1
         else:
@@ -83,7 +85,7 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
         if len(set(dates)) == 1 and dates[0] == None:
             date_bins['Missing'] += 1
         else:
-            d = min(dates)
+            d = min(real_dates)
             try:
                 date_bins[d] += 1
             except KeyError:

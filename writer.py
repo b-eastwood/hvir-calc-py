@@ -98,8 +98,12 @@ def write_data(surveys, out_header, params,rounding=9,sub_file=None,raw_surveys=
                             elif type(s[k]) == datetime:
                                 if  'fin_year' in k:
                                     ws[k] = financial_year_formatter(s[k])
-                                else:
+                                elif 'seal_date' in k:
                                     ws[k] = s[k].strftime("%Y")
+                                elif 'pave_date' in k:
+                                    ws[k] = s[k].strftime("%Y")
+                                else:
+                                    ws[k] = s[k].strftime("%Y%m%d")
                             else:
                                 ws[k] = s[k]
 
