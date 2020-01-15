@@ -59,6 +59,7 @@ def create_typer(datetime_format):
 
 
 def process_rows(raw_data, header, hvir_params, converters):
+    header_warning(header,converters)
     surveys = []
     raw_surveys = []
     failed_rows = []
@@ -310,6 +311,10 @@ def check_quality(survey,hvir_params,type_selector):
             quality[k+'_tim'] = timeliness[k]
     return survey, quality,num_invalid,num_blank,num_ranged,num_invalid,num_valid,max_dates,min_dates,total_acc_check,num_acc,attribute_quality
 
+def header_warning(header,converters):
+    for k in converters.keys():
+        if k not in header:
+            logging.warning('Column %s not found in input data' % k)
 
 def cast_row(row, header, converters, key_fails,data_types):
     survey = {}

@@ -23,6 +23,8 @@ def get_data(params):
         except FileNotFoundError:
             logging.critical("Input file Not Found: %s",params['filepath'])
             exit(1)
+
+
     return header, raw_data
 
 
