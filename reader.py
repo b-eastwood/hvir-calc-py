@@ -88,7 +88,12 @@ def validate_data_format(settings, header):
             header_error = True
             bad_headers.append(key)
     if header_error:
-        raise KeyError("One or more of the header names:\n <%s> \nin the csv does not match the converter list:\n %s" % (
-        str(bad_headers), str(list(converters.keys()))))
+        try:
+            raise KeyError("The following header names:\n%s\nDo not match the expected converter list:\n %s\nCheck config/quality.config for expected column names and formats" % (
+            str(bad_headers), str(list(converters.keys()))))
+        except KeyError as e:
+            print(e.args[0])
+            exit(1)
+
 
     return type_selector, converters
