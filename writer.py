@@ -114,7 +114,7 @@ def write_data(surveys, out_header, params,rounding=9,sub_file=None,raw_surveys=
                                 ws[k] = s[k]
 
                     writer.writerow(ws)
-                logging.info('Completed, outfile is here: %s' % params['outfile'])
+            logging.info('Completed, outfile is here: %s' % filename)
 
         except PermissionError:
             logging.critical("Failed to write to disk, do you have the output file open?")
