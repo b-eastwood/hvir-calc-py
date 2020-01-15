@@ -57,7 +57,7 @@ def main():
             print('Setting debug level: Warnings')
             logging.getLogger().setLevel(logging.WARNING)
     else:
-        logging.getLogger().setLevel(logging.CRITICAL)
+        logging.getLogger().setLevel(logging.INFO)
 
     params['data_params'], type_dict = reader.get_data_settings(params['config_file'])
     header, raw_data = reader.get_data(params)
