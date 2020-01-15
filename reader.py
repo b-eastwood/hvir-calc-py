@@ -77,10 +77,18 @@ def get_data_settings(config_file):
 
 def validate_data_format(settings, header):
     converters = {}
+    header_error = False
+    bad_headers = []
+
     type_selector = create_typer(settings['datetime_format'])
     for key in settings['datatypes']:
         converters[key.lower()] = type_selector[settings['datatypes'][key.lower()]['type']]
     for key in header:
         if key not in converters:
-            raise KeyError("One of the header names <%s> in the csv does not match the converter list: %s" % (key, str(list(converters.keys()))))
+            header_error = True
+            bad_headers.append(key)
+    if header_error:
+        raise KeyError("One or more of the header names:\n <%s> \nin the csv does not match the converter list:\n %s" % (
+        str(bad_headers), str(list(converters.keys()))))
+
     return type_selector, converters

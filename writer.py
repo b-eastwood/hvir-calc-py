@@ -63,7 +63,10 @@ def write_data(surveys, out_header, params,rounding=9,sub_file=None,raw_surveys=
                 if k in out_header:
                     if s[k] == None and raw_surveys != None:
                         #Use raw value instead
-                        s[k] = raw_surveys[i][k]
+                        if k in raw_surveys[i].keys():
+                            s[k] = raw_surveys[i][k]
+                        else:
+                            s[k] = None
                     if type(s[k]) == type(0.1):
                         ws[k] = round(s[k],rounding)
                     elif type(s[k]) == datetime:
