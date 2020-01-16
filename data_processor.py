@@ -89,16 +89,20 @@ def process_rows(raw_data, header, hvir_params, converters):
             logging.debug("Couldn't read in this row: %s" % row_num)
             failed_rows.append(row_num)
 
+        complete = 0
+        incomplete = 0
+        for k in converters.keys():
+            if k not in survey.keys():
+                incomplete += 1
+            elif survey[k] == None:
+                    incomplete += 1
+            else:
+                complete += 1
+
         survey, out_keys = calculator.method_logic(survey, hvir_params)
         if survey['hvir'] == 'NA':
             failed_rows.append(row_num)
-        complete = 0
-        incomplete = 0
-        for k in survey:
-            if survey[k] == None:
-                incomplete += 1
-            else:
-                complete +=1
+
         meta['incomplete'] += incomplete
         meta['complete']   += complete
         surveys.append(survey)

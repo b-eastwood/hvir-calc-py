@@ -10,7 +10,7 @@ def create_dummy_vals(n):
 def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_rows,params,writing_invalid=False):
     write_lines = []
     total_rows = len(quality_assessement)
-    sum_cells = (len(quality_assessement)*len(quality_assessement[0].keys()))
+    sum_cells = len(quality_assessement)*len(atrribute_quality[0].keys())
     no_data      = meta['incomplete']/sum_cells
     invalid_data = meta['num_invalid']/sum_cells - no_data
     valid_data =  1 - no_data - invalid_data
@@ -55,9 +55,6 @@ def create_pbi_log(surveys, quality_assessement,atrribute_quality,meta,failed_ro
             two  = sum([a[k] == 2 for a in atrribute_quality])/len(atrribute_quality)
             old_k = k
             k = params['data_params']['logfile_col_names'][k] # overwrite with output key
-            #write_lines.append([k+' 0',zero])
-            #$write_lines.append([k+' 1',one])
-            #write_lines.append([k+' 2',two])
             write_lines.append([old_k,k,zero,one,two])
 
     ds_2  = write_lines
